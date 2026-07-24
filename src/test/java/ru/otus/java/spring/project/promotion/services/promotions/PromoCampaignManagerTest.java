@@ -15,7 +15,8 @@ import ru.otus.java.spring.project.promotion.domains.providers.Provider;
 import ru.otus.java.spring.project.promotion.dtos.request.CampaignHotelParameterRqDto;
 import ru.otus.java.spring.project.promotion.dtos.request.PromoCampaignRqDto;
 import ru.otus.java.spring.project.promotion.exceptions.ResourceNotFoundException;
-import ru.otus.java.spring.project.promotion.integrations.RestClientService;
+import ru.otus.java.spring.project.promotion.integrations.ProviderRestClient;
+import ru.otus.java.spring.project.promotion.integrations.TelegramRestClient;
 import ru.otus.java.spring.project.promotion.services.providers.ActiveProviderService;
 import ru.otus.java.spring.project.promotion.services.providers.ProviderServiceImpl;
 import ru.otus.java.spring.project.promotion.tasks.PromoCampaignExecutor;
@@ -45,7 +46,10 @@ public class PromoCampaignManagerTest {
     private ActiveProviderService activeProviderService;
 
     @MockitoBean
-    private RestClientService restService;
+    private ProviderRestClient providerRestClient;
+
+    @MockitoBean
+    private TelegramRestClient telegramRestClient;
 
     @MockitoBean
     private PromoCampaignExecutor promoCampaignExecutor;
@@ -194,7 +198,6 @@ public class PromoCampaignManagerTest {
     private PromoCampaignRqDto createPromoCampaignRequest() {
         PromoCampaignRqDto request = new PromoCampaignRqDto();
         request.setStartDate(LocalDateTime.of(2026, Month.AUGUST, 1, 12, 0));
-        request.setMessageGroupName("Тестовая группа");
         request.setTitle("Тестовая кампания");
         request.setCampaignType(PromoCampaignType.LOW_COST.getDescription());
         request.setProviderIds(List.of(1L, 2L));

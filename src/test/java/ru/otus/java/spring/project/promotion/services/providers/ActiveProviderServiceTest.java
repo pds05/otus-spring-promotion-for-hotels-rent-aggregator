@@ -3,18 +3,15 @@ package ru.otus.java.spring.project.promotion.services.providers;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import ru.otus.java.spring.project.promotion.configs.ProviderPropertyFileConfig;
+import ru.otus.java.spring.project.promotion.configs.IntegrationPropertyFileConfig;
 import ru.otus.java.spring.project.promotion.domains.providers.Provider;
-import ru.otus.java.spring.project.promotion.integrations.RestClientService;
+import ru.otus.java.spring.project.promotion.integrations.ProviderRestClient;
+import ru.otus.java.spring.project.promotion.integrations.TelegramRestClient;
 import ru.otus.java.spring.project.promotion.repositories.providers.ProviderRepository;
 import ru.otus.java.spring.project.promotion.tasks.PromoCampaignExecutor;
 
 import java.util.*;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @DisplayName("Сервис для работы с настройками провайдеров")
@@ -28,13 +25,16 @@ public class ActiveProviderServiceTest {
     private ProviderRepository providerRepository;
 
     @MockitoBean
-    private ProviderPropertyFileConfig providerPropertyFileConfig;
+    private IntegrationPropertyFileConfig integrationPropertyFileConfig;
 
     @MockitoBean
     private PromoCampaignExecutor promoCampaignExecutor;
 
     @MockitoBean
-    private RestClientService restService;
+    private ProviderRestClient providerRestClient;
+
+    @MockitoBean
+    private TelegramRestClient telegramRestClient;
 
     private Provider repoProviderNifNif;
 
@@ -42,7 +42,7 @@ public class ActiveProviderServiceTest {
 
     private Provider repoProviderNufNuf;
 
-    private Map<String, ProviderPropertyFileConfig.IntegrationServiceProperties> propertyProviders;
+    private Map<String, IntegrationPropertyFileConfig.IntegrationServiceProperties> propertyProviders;
 
     @BeforeEach
     void initProviders() {
@@ -69,7 +69,7 @@ public class ActiveProviderServiceTest {
         repoProviderNufNuf.setDescription("Nuf Nuf Provider");
         repoProviderNufNuf.setIsActive(true);
 
-        ProviderPropertyFileConfig.IntegrationServiceProperties disabledProviderProperty = new ProviderPropertyFileConfig.IntegrationServiceProperties();
+        IntegrationPropertyFileConfig.IntegrationServiceProperties disabledProviderProperty = new IntegrationPropertyFileConfig.IntegrationServiceProperties();
         disabledProviderProperty.setEnable(false);
         propertyProviders.put("nufnuf", disabledProviderProperty);
     }
@@ -78,7 +78,7 @@ public class ActiveProviderServiceTest {
     @Test
     void shouldInitCache(){
         when(providerRepository.findAll()).thenReturn(List.of(repoProviderNifNif, repoProviderNafNaf, repoProviderNufNuf));
-        when(providerPropertyFileConfig.getProviders()).thenReturn(propertyProviders);
+        when(integrationPropertyFileConfig.getProviders()).thenReturn(propertyProviders);
 
 //        assertThat(providers).isNotNull().isEqualTo(List.of(repoProviderNifNif, repoProviderNafNaf));
     }

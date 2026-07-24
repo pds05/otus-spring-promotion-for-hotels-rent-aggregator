@@ -21,8 +21,6 @@ public class PromoCampaignRqDto {
 
     private LocalDateTime startDate;
 
-    private String messageGroupName;
-
     private List<CampaignHotelParameterRqDto> hotelParameters = new ArrayList<>();
 
     private List<Long> providerIds = new ArrayList<>();

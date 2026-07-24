@@ -44,9 +44,6 @@ public class PromoCampaign {
     @Column(name = "update_date")
     private LocalDateTime updatedDate;
 
-    @Column(name = "message_group_name", length = 50)
-    private String messageGroupName;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private PromoCampaignStatus status;

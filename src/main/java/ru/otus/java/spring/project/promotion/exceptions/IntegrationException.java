@@ -5,11 +5,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ProviderException extends RuntimeException {
+public class IntegrationException extends RuntimeException {
 
     private String code;
 
-    public ProviderException(String code, String message) {
+    public IntegrationException(String code, String message) {
         super(message);
         this.code = code;
     }

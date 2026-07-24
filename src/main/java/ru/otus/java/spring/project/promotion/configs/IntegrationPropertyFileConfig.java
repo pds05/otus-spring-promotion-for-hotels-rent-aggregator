@@ -12,11 +12,13 @@ import java.util.Map;
 @Getter
 @Setter
 @ConfigurationProperties(prefix = "integration")
-public class ProviderPropertyFileConfig {
+public class IntegrationPropertyFileConfig {
 
     private BaseProperty base;
 
     private Map<String, IntegrationServiceProperties> providers;
+
+    private TelegramProperty telegram;
 
     @Getter
     @Setter
@@ -37,11 +39,30 @@ public class ProviderPropertyFileConfig {
 
     @Getter
     @Setter
-    public static class BaseProperty{
+    public static class BaseProperty {
+
         private String url;
+
         private Duration readTimeout;
+
         private Duration connectTimeout;
+
         private String topicPrefix;
     }
 
+    @Getter
+    @Setter
+    public static class TelegramProperty {
+
+        private String url;
+
+        private String chatId;
+
+        private String botUriPrefix;
+
+        private String botApiSendMessage;
+
+        private int messageDelay;
+
+    }
 }

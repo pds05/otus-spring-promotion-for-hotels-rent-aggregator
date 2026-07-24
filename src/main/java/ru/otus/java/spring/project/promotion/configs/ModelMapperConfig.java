@@ -17,6 +17,7 @@ import ru.otus.java.spring.project.promotion.services.providers.ProviderService;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -57,13 +58,7 @@ public class ModelMapperConfig {
 
         Converter<PromoCampaignStatus, String> campaignStatusStringConverter = mc -> mc.getSource().getDescription();
 
-        Converter<PromoCampaignResult, String> campaignResultConverter = mc -> {
-            if (mc.getSource() != null) {
-                return mc.getSource().getDescription();
-            } else {
-                return null;
-            }
-        };
+        Converter<PromoCampaignResult, String> campaignResultConverter = mc -> Optional.ofNullable(mc.getSource()).orElse(PromoCampaignResult.NOK_FAILED).getDescription();
 
         Converter<Set<CampaignHotelParameter>, List<CampaignHotelParameterDto>> parameterConverter = mc ->
                 mc.getSource().stream().map(parameter -> new CampaignHotelParameterDto(parameter.getId(),
@@ -71,9 +66,9 @@ public class ModelMapperConfig {
                         parameter.getDateIn(),
                         parameter.getDateOut(),
                         parameter.getGuests(),
-                        parameter.getCtHotelTypes().stream().map(ctHotelType -> new CampaignHotelParameterDto.HotelTypeDto(
+                        parameter.getCtHotelTypes() == null ? null : parameter.getCtHotelTypes().stream().map(ctHotelType -> new CampaignHotelParameterDto.HotelTypeDto(
                                 ctHotelType.getId(), ctHotelType.getDescription())).toList(),
-                        parameter.getCtFoodTypes().stream().map(ctFoodType -> new CampaignHotelParameterDto.FoodTypeDto(
+                        parameter.getCtFoodTypes() == null ? null : parameter.getCtFoodTypes().stream().map(ctFoodType -> new CampaignHotelParameterDto.FoodTypeDto(
                                 ctFoodType.getId(), ctFoodType.getDescription())).toList()
                 )).toList();
 
@@ -95,13 +90,19 @@ public class ModelMapperConfig {
 
         Converter<List<CampaignHotelParameterRqDto>, Set<CampaignHotelParameter>> hotelParametersDtoToDomainConverter = m -> m.getSource().stream()
                 .map(req -> {
-                    Set<CtHotelType> hotelTypes = new HashSet<>(ctHotelTypeRepository.findAllById(req.getHotelTypeIds()));
-                    Set<CtFoodType> hotelFoodTypes = new HashSet<>(ctHotelFoodTypeRepository.findAllById(req.getFoodTypeIds()));
-                    return new CampaignHotelParameter(req.getId(), req.getCityName(), req.getDateIn(), req.getDateOut(), req.getGuests(), hotelTypes, hotelFoodTypes);
+                    Set<CtHotelType> hotelTypes = null;
+                    if (req.getHotelTypeIds() != null) {
+                        hotelTypes = new HashSet<>(ctHotelTypeRepository.findAllById(req.getHotelTypeIds()));
+                    }
+                    Set<CtFoodType> foodTypes = null;
+                    if (req.getFoodTypeIds() != null) {
+                        foodTypes = new HashSet<>(ctHotelFoodTypeRepository.findAllById(req.getFoodTypeIds()));
+                    }
+                    return new CampaignHotelParameter(req.getId(), req.getCityName(), req.getDateIn(), req.getDateOut(), req.getGuests(), hotelTypes, foodTypes);
                 }).collect(Collectors.toSet());
 
         Converter<List<Long>, Set<CampaignProvider>> campaignProviderIdToModelListConverter = m ->
-            m.getSource().stream().map(id -> new CampaignProvider(null, id)).collect(Collectors.toSet());
+                m.getSource().stream().map(id -> new CampaignProvider(null, id)).collect(Collectors.toSet());
 
         mapper.createTypeMap(PromoCampaignRqDto.class, PromoCampaign.class)
                 .addMappings(m -> m.using(stringPromoCampaignTypeConverter)

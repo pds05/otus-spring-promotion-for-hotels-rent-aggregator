@@ -6,17 +6,20 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import ru.otus.java.spring.project.promotion.configs.IntegrationPropertyFileConfig;
 import ru.otus.java.spring.project.promotion.domains.promotions.*;
 import ru.otus.java.spring.project.promotion.domains.providers.Provider;
 import ru.otus.java.spring.project.promotion.domains.providers.ProviderApi;
 import ru.otus.java.spring.project.promotion.dtos.request.ProviderRequestDto;
 import ru.otus.java.spring.project.promotion.dtos.response.HotelRoomsDto;
-import ru.otus.java.spring.project.promotion.integrations.RestClientService;
+import ru.otus.java.spring.project.promotion.integrations.ProviderRestClient;
+import ru.otus.java.spring.project.promotion.integrations.TelegramRestClient;
 import ru.otus.java.spring.project.promotion.repositories.promotions.PromoCampaignRepository;
 import ru.otus.java.spring.project.promotion.services.providers.ActiveProviderService;
 import ru.otus.java.spring.project.promotion.services.providers.ProviderService;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Slf4j
@@ -33,7 +36,13 @@ public class PromoCampaignExecutor {
 
     private final ProviderService providerService;
 
-    private final RestClientService restService;
+    private final ProviderRestClient providerRestClient;
+
+    private final TelegramRestClient telegramRestClient;
+
+    private final IntegrationPropertyFileConfig integrationPropertyFileConfig;
+
+    private static final String MESSAGE_DATE_PATTERN = "dd-MM-yyyy";
 
     @Scheduled(fixedDelayString = "${executor.delay}")
     public void run() {
@@ -57,21 +66,77 @@ public class PromoCampaignExecutor {
                     List<ProviderRequestDto> requestList = promoCampaign.getHotelParameters().stream().map(this::createProviderRequest).toList();
                     doProviderRequest(requestList, provider, campaignData);
                 }
+
+                promoCampaignDataHandler.writeProviderData(campaignData);
+
+                List<ProviderHotelData> targetHotelData = promoCampaignDataHandler.getTargetData(campaignData);
+                campaignData.addTargetProviderHotel(targetHotelData);
+                log.debug("Target hotel rooms: {}", targetHotelData);
+
+                doSendTelegramMessage(campaignData);
+
                 setCompletedStatus(campaignData, campaignProviders);
             } catch (Exception e) {
                 promoCampaign.setStatus(PromoCampaignStatus.COMPLETED);
                 promoCampaign.setResult(PromoCampaignResult.NOK_FAILED);
-                promoCampaignRepository.save(promoCampaign);
-                campaignData.addError("Системная ошибка");
+                campaignData.addErrorMessage("Системная ошибка");
 
                 log.error("Promo campaign completed - {}: ", promoCampaign.getResult(), e);
             }
-            promoCampaignDataHandler.writeProviderData(campaignData);
-            List<ProviderHotelData> targetHotelRooms = promoCampaignDataHandler.getTargetData(campaignData);
-            log.info("Target Hotel Rooms: {}", targetHotelRooms);
-            promoCampaign.setDetails(String.join(", ", campaignData.getErrors()));
+
+            promoCampaign.setDetails(String.join(", ", campaignData.getErrorMessages()));
             promoCampaignRepository.save(promoCampaign);
         }
+    }
+
+    private void doSendTelegramMessage(PromoCampaignData campaignData) {
+        PromoCampaignType promoCampaignType = campaignData.getPromoCampaign().getCampaignType();
+
+        List<ProviderHotelData> targetProviderHotels = campaignData.getTargetProviderHotels();
+        targetProviderHotels.forEach(hotelRoom -> {
+            try {
+                switch (promoCampaignType) {
+                    case LOW_COST -> {
+                        String message = String.format(promoCampaignType.getTelegramMessageTemplate(),
+                                hotelRoom.getCityName(),
+                                hotelRoom.getHotelName(),
+                                hotelRoom.getHotelRoomName(),
+                                hotelRoom.getMaxGuests(),
+                                hotelRoom.getPrice(),
+                                hotelRoom.getDateIn().format(DateTimeFormatter.ofPattern(MESSAGE_DATE_PATTERN)));
+                        telegramRestClient.sendMessage(message);
+                    }
+                    case LOW_COST_WITH_FOOD -> {
+                        String message = String.format(promoCampaignType.getTelegramMessageTemplate(),
+                                hotelRoom.getCityName(),
+                                hotelRoom.getFood().toLowerCase(),
+                                hotelRoom.getHotelName(),
+                                hotelRoom.getHotelRoomName(),
+                                hotelRoom.getMaxGuests(),
+                                hotelRoom.getPrice(),
+                                hotelRoom.getDateIn().format(DateTimeFormatter.ofPattern(MESSAGE_DATE_PATTERN)));
+                        telegramRestClient.sendMessage(message);
+                    } default -> {
+                        campaignData.incError();
+                        campaignData.addErrorMessage("Программная ошибка: не удалось составить сообщение для Telegram");
+                        log.warn("Impossible to prepare telegram message, promo campaign type is not defined");
+                    }
+                }
+                if (targetProviderHotels.size() > 1) {
+                    try {
+                        Thread.sleep(integrationPropertyFileConfig.getTelegram().getMessageDelay());
+                    } catch (InterruptedException e) {
+                        campaignData.incError();
+                        campaignData.addErrorMessage("Application error while sending telegram messages");
+                        log.error("Application error while sending telegram messages", e);
+                    }
+                }
+            } catch (Exception e) {
+                campaignData.incError();
+                campaignData.addErrorMessage("Telegram не доступен");
+                log.error("Failed to send telegram message", e);
+            }
+        });
     }
 
     private void setCompletedStatus(PromoCampaignData campaignData, Set<CampaignProvider> campaignProviders) {
@@ -79,7 +144,7 @@ public class PromoCampaignExecutor {
         if (campaignProviders.size() > activeProviderService.getAll().size()) {
 
             List<Long> disableProviderIds = ((ActiveProviderService) activeProviderService).checkDisableProviders(promoCampaign.getProviderIds());
-            providerService.getByIds(disableProviderIds).forEach(p -> campaignData.addError(p.getTitle().concat(" отключен")));
+            providerService.getByIds(disableProviderIds).forEach(p -> campaignData.addErrorMessage(p.getTitle().concat(" отключен")));
         }
         log.debug("Promo campaign completed - {}: {}", promoCampaign.getResult(), promoCampaign);
     }
@@ -115,7 +180,7 @@ public class PromoCampaignExecutor {
         ProviderApi api = provider.getProviderApi(BusinessMethodEnum.FIND_HOTELS_WITH_FILTER);
         try {
             requestList.forEach(req -> {
-                var response = restService.getResponseCollection(api, req,
+                var response = providerRestClient.sendMessage(api, req,
                         new ParameterizedTypeReference<List<HotelRoomsDto>>() {
                         });
                 ProviderData responseResult = new ProviderData(provider.getId(), req, response);
@@ -124,7 +189,7 @@ public class PromoCampaignExecutor {
             campaignResult.incSuccess();
         } catch (Exception e) {
             campaignResult.incError();
-            campaignResult.addError(provider.getTitle().concat(" не доступен"));
+            campaignResult.addErrorMessage(provider.getTitle().concat(" не доступен"));
         }
     }
 }

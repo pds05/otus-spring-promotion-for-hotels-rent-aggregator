@@ -46,7 +46,6 @@ public class PromoCampaignRepositoryTest {
         PromoCampaign expectedCampaign = new PromoCampaign();
         expectedCampaign.setTitle("Новая промо кампания");
         expectedCampaign.setCampaignType(PromoCampaignType.LOW_COST);
-        expectedCampaign.setMessageGroupName("Тестовая группа");
         expectedCampaign.setStartDate(LocalDateTime.of(2027, 1, 1, 12,0));
         expectedCampaign.setCampaignProviders(Set.of(
                 entityManager.find(CampaignProvider.class, 1L),
@@ -110,7 +109,6 @@ public class PromoCampaignRepositoryTest {
 
         assertThat(entityManager.find(PromoCampaign.class, updatedPromoCampaign.getId()))
                 .isEqualTo(optionalPromoCampaign);
-
     }
 
     @Transactional
@@ -122,6 +120,5 @@ public class PromoCampaignRepositoryTest {
         promoCampaignRepository.deleteById(optionalPromoCampaign.getId());
 
         assertThat(entityManager.find(PromoCampaign.class, optionalPromoCampaign.getId())).isNull();
-
     }
 }

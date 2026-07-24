@@ -27,12 +27,19 @@ public class PromotionApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        PromoCampaignRqDto promoCampaignRqDto = new PromoCampaignRqDto();
-        promoCampaignRqDto.setCampaignType(PromoCampaignType.LOW_COST_WITH_FOOD.getDescription());
-        promoCampaignRqDto.setTitle("Кампания дешевых номеров");
-        promoCampaignRqDto.setProviderIds(List.of(1L, 2L, 3L));
-        promoCampaignRqDto.setMessageGroupName("Тестовая группа сообщений");
-        promoCampaignRqDto.setStartDate(LocalDateTime.of(2026, 7, 21, 19, 55));
+        startLowCostWithFoodCampaign();
+
+        Thread.sleep(5000);
+
+        startLowCostCampaign();
+    }
+
+    private void startLowCostWithFoodCampaign() throws InterruptedException {
+        PromoCampaignRqDto campaignRqDto = new PromoCampaignRqDto();
+        campaignRqDto.setCampaignType(PromoCampaignType.LOW_COST_WITH_FOOD.getDescription());
+        campaignRqDto.setTitle("Кампания дешевых номеров с питанием");
+        campaignRqDto.setProviderIds(List.of(1L, 2L, 3L));
+        campaignRqDto.setStartDate(LocalDateTime.of(2026, 7, 21, 19, 55));
 
         CampaignHotelParameterRqDto moscow = new CampaignHotelParameterRqDto();
         moscow.setCityName("Москва");
@@ -48,15 +55,36 @@ public class PromotionApplication implements CommandLineRunner {
         kazan.setDateOut(LocalDate.of(2027, 1,2));
         kazan.setGuests(2);
         kazan.setHotelTypeIds(Collections.singletonList(3L));
-        kazan.setFoodTypeIds(List.of(5L));
+        kazan.setFoodTypeIds(List.of(1L, 2L, 3L, 4L));
 
-        promoCampaignRqDto.setHotelParameters(List.of(moscow, kazan));
+        campaignRqDto.setHotelParameters(List.of(moscow, kazan));
 
-        PromoCampaignDto promoCampaign = promoCampaignService.save(promoCampaignRqDto);
+        PromoCampaignDto promoCampaign = promoCampaignService.save(campaignRqDto);
 
         Thread.sleep(5000);
 
         promoCampaignService.start(promoCampaign.getId());
+    }
 
+    private void startLowCostCampaign() throws InterruptedException {
+        PromoCampaignRqDto campaignRqDto = new PromoCampaignRqDto();
+        campaignRqDto.setCampaignType(PromoCampaignType.LOW_COST.getDescription());
+        campaignRqDto.setTitle("Кампания дешевых номеров");
+        campaignRqDto.setProviderIds(Collections.singletonList(1L));
+        campaignRqDto.setStartDate(LocalDateTime.of(2026, 7, 21, 19, 56));
+
+        CampaignHotelParameterRqDto moscow = new CampaignHotelParameterRqDto();
+        moscow.setCityName("Москва");
+        moscow.setDateIn(LocalDate.of(2027, 1,1));
+        moscow.setDateOut(LocalDate.of(2027, 1,2));
+        moscow.setGuests(4);
+        moscow.setHotelTypeIds(List.of(1L, 3L));
+
+        campaignRqDto.setHotelParameters(Collections.singletonList(moscow));
+        PromoCampaignDto promoCampaign = promoCampaignService.save(campaignRqDto);
+
+        Thread.sleep(5000);
+
+        promoCampaignService.start(promoCampaign.getId());
     }
 }

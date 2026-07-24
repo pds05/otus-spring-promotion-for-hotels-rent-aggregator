@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.otus.java.spring.project.promotion.domains.promotions.PromoCampaign;
 import ru.otus.java.spring.project.promotion.domains.promotions.ProviderHotelData;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("Репозиторий JPA для работы с данными запроса провайдера")
@@ -43,14 +45,10 @@ public class ProviderHotelDataRepositoryTest {
     @DisplayName("Должен находить предложения с минимальной стоимостью и питанием")
     @Test
     void shouldGetDataByCampaignWithMinPriceAndFood(){
-        var hotelWithFood = providerHotelDataRepository.findWithMinPriceAndFood(MIGRATED_PROMO_CAMPAIGN_ID, "Москва", "Завтрак%");
+        var allInclusive = providerHotelDataRepository.findWithMinPriceAndFood(MIGRATED_PROMO_CAMPAIGN_ID, "Москва", List.of("Все включено"));
 
-        assertThat(hotelWithFood).isNotEmpty();
-        assertThat(hotelWithFood).allMatch(data -> data.getFood().startsWith("Завтрак") && data.getCityName().equals("Москва"));
-
-        var hotelAllInclusive = providerHotelDataRepository.findWithMinPriceAndFood(MIGRATED_PROMO_CAMPAIGN_ID, "Москва", "Все включено%");
-        assertThat(hotelAllInclusive).isNotEmpty();
-        assertThat(hotelAllInclusive).allMatch(data -> data.getFood().startsWith("Все включено") && data.getCityName().equals("Москва"));
+        assertThat(allInclusive).isNotEmpty();
+        assertThat(allInclusive).allMatch(data -> data.getFood().equals("Все включено") && data.getCityName().equals("Москва"));
     }
 
     @Transactional

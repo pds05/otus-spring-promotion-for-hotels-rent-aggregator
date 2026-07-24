@@ -1,5 +1,5 @@
-insert into promo_campaigns (id, title, campaign_type, start_date, create_date, update_date, message_group_name, status, result)
-VALUES (100,  'Кампания по низкой стоимости', 'LOW_COST', '2027-01-01', CURRENT_DATE, null, 'Тестовая группа', 'CREATED', null);
+insert into promo_campaigns (id, title, campaign_type, start_date, create_date, update_date, status, result)
+VALUES (100,  'Кампания по низкой стоимости', 'LOW_COST_WITH_FOOD', '2027-01-01', CURRENT_DATE, null, 'CREATED', null);
 
 insert into campaign_hotel_parameters(id, campaign_id, city_name, date_in, date_out, guests)
 VALUES (100, 100, 'Москва', '2027-01-02', '2027-01-03', '2'),

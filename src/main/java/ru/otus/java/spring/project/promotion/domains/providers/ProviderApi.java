@@ -32,9 +32,6 @@ public class ProviderApi {
     @Column(name = "business_method", nullable = false)
     private BusinessMethodEnum businessMethod;
 
-    @Column(name = "description")
-    private String description;
-
     @Column(name = "response_template")
     private String responseTemplate;
 

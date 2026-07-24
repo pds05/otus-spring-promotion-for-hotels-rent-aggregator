@@ -8,12 +8,18 @@ import java.util.Arrays;
 @Getter
 public enum PromoCampaignType {
 
-    LOW_COST("Самый дешевый номер"), LOW_COST_WITH_FOOD("Самый дешевый номер с питанием");
+    LOW_COST("Самый дешевый номер",
+            "Самый дешевый номер в г. %s: гостиница '%s' номер '%s' на %d человек за %,.2f рублей в сутки, заезд %s"),
+    LOW_COST_WITH_FOOD("Самый дешевый номер с питанием",
+            "Самый дешевый номер в г. %s с питанием %s: гостиница '%s' номер '%s' на %d человек за %,.2f рублей в сутки, заезд %s");
 
     private final String description;
 
-    PromoCampaignType(String description) {
+    private final String telegramMessageTemplate;
+
+    PromoCampaignType(String description, String telegramMessageTemplate) {
         this.description = description;
+        this.telegramMessageTemplate = telegramMessageTemplate;
     }
 
     public static PromoCampaignType getPromoCampaignType(String description) {

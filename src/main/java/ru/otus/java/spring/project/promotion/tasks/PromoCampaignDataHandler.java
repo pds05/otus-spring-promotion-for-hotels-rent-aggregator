@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
+import ru.otus.java.spring.project.promotion.domains.promotions.CtFoodType;
 import ru.otus.java.spring.project.promotion.domains.promotions.PromoCampaign;
 import ru.otus.java.spring.project.promotion.domains.promotions.ProviderHotelData;
 import ru.otus.java.spring.project.promotion.dtos.response.HotelRoomsDto;
@@ -59,9 +60,7 @@ public class PromoCampaignDataHandler {
 
                     switch (promoCampaign.getCampaignType()) {
                         case LOW_COST -> providerHotelData = providerHotelDataRepository.findWithMinPrice(promoCampaign.getId(), param.getCityName());
-                        case LOW_COST_WITH_FOOD -> providerHotelData = param.getCtFoodTypes().stream().flatMap(food ->
-                                providerHotelDataRepository.findWithMinPriceAndFood(promoCampaign.getId(), param.getCityName(), food.getDescription()).stream())
-                                .toList();
+                        case LOW_COST_WITH_FOOD -> providerHotelData = providerHotelDataRepository.findWithMinPriceAndFood(promoCampaign.getId(), param.getCityName(), param.getCtFoodTypes().stream().map(CtFoodType::getDescription).toList());
                         default -> providerHotelData = Collections.emptyList();
                     }
 

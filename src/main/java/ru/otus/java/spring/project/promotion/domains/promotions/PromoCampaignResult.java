@@ -1,11 +1,14 @@
 package ru.otus.java.spring.project.promotion.domains.promotions;
 
+import lombok.Getter;
+
+@Getter
 public enum PromoCampaignResult {
 
     OK("Успешное выполнение"),
     OK_PARTLY("Выполнена частично"),
-    OK_WITH_ERROR("Выполнено с ошибкой"),
-    NOK_FAILED("Прервано с ошибкой"),
+    OK_WITH_ERROR("Выполнена с ошибкой"),
+    NOK_FAILED("Не выполнена с ошибкой"),
     INTERRUPTED ("Выполнение остановлено");
 
     private final String description;

@@ -34,33 +34,38 @@ spring:
     enabled: true
     baseline-on-migrate: true
 integration:
+  telegram:
+    url: https://api.telegram.org
+    chat-id: -1003974066883
+    bot-uri-prefix: bot
+    bot-api-send-message: sendMessage
+    message-delay: 3000
   base:
-    url: http://localhost:8080/
+    url: http://localhost:8080
     read-timeout: 15s
     connect-timeout: 2s
     topic-prefix: baseProvider
   providers:
     nifNif:
-      url: http://localhost:8081/api/v1/
+      url: http://localhost:8081/api/v1
       read-timeout: 20s
       connect-timeout: 5s
       topic-prefix: nifNif
       enable: true
     nafNaf:
-      url: http://localhost:8082/api/v1/
+      url: http://localhost:8082/api/v1
       read-timeout: 20s
       connect-timeout: 5s
       topic-prefix: nafNaf
-      enable: true
+      enable: false
     nufNuf:
-      url: http://localhost:8083/api/v1/
+      url: http://localhost:8083/api/v1
       read-timeout: 20s
       connect-timeout: 5s
       topic-prefix: nufNuf
       enable: false
 executor:
   delay: 1000
-  time-unit:
 
 logging:
   level:

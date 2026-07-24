@@ -3,6 +3,7 @@ package ru.otus.java.spring.project.promotion.tasks;
 import lombok.Getter;
 import lombok.Setter;
 import ru.otus.java.spring.project.promotion.domains.promotions.PromoCampaign;
+import ru.otus.java.spring.project.promotion.domains.promotions.ProviderHotelData;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,7 +26,9 @@ public class PromoCampaignData {
 
     private final Map<Long, List<ProviderData>> providerDataMultiMap = new HashMap<>();
 
-    private final List<String> errors = new ArrayList<>();
+    private final List<ProviderHotelData> targetProviderHotels = new ArrayList<>();
+
+    private final List<String> errorMessages = new ArrayList<>();
 
     public List<ProviderData> getProviderData(long providerId) {
         return providerDataMultiMap.get(providerId);
@@ -35,8 +38,8 @@ public class PromoCampaignData {
         providerDataMultiMap.computeIfAbsent(result.getProviderId(), k -> new ArrayList<>()).add(result);
     }
 
-    public void addError(String error) {
-        errors.add(error);
+    public void addErrorMessage(String message) {
+        errorMessages.add(message);
     }
 
     public void incError() {
@@ -45,5 +48,13 @@ public class PromoCampaignData {
 
     public void incSuccess() {
         successCount++;
+    }
+
+    public void addTargetProviderHotel(List<ProviderHotelData> providerHotel) {
+        targetProviderHotels.addAll(providerHotel);
+    }
+
+    public void addTargetProviderHotel(ProviderHotelData providerHotel) {
+        targetProviderHotels.add(providerHotel);
     }
 }

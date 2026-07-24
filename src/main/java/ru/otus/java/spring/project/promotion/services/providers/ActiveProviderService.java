@@ -4,8 +4,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.otus.java.spring.project.promotion.configs.ProviderPropertyFileConfig;
-import ru.otus.java.spring.project.promotion.domains.promotions.CampaignProvider;
+import ru.otus.java.spring.project.promotion.configs.IntegrationPropertyFileConfig;
 import ru.otus.java.spring.project.promotion.domains.providers.Provider;
 import ru.otus.java.spring.project.promotion.exceptions.ApplicationException;
 import ru.otus.java.spring.project.promotion.exceptions.ResourceNotFoundException;
@@ -22,7 +21,7 @@ import java.util.stream.Collectors;
 @Service("activeProviderService")
 public class ActiveProviderService implements ProviderService {
 
-    private final ProviderPropertyFileConfig providerPropertyFileConfig;
+    private final IntegrationPropertyFileConfig integrationPropertyFileConfig;
 
     private final ProviderRepository providerRepository;
 
@@ -59,10 +58,10 @@ public class ActiveProviderService implements ProviderService {
 
     private Map<Long, Provider> readActiveProviderFromDbAndProperty() {
         Map<Long, Provider> providerMap = providerRepository.findByIsActiveTrue().stream()
-                .map(dbProvider -> providerPropertyFileConfig.getProviders().entrySet().stream()
+                .map(dbProvider -> integrationPropertyFileConfig.getProviders().entrySet().stream()
                         .filter(propertyProvider -> propertyProvider.getKey().equalsIgnoreCase(dbProvider.getPropertyName()))
                         .findFirst().map(entry -> {
-                                    ProviderPropertyFileConfig.IntegrationServiceProperties fileProperty = entry.getValue();
+                                    IntegrationPropertyFileConfig.IntegrationServiceProperties fileProperty = entry.getValue();
                                     if (fileProperty.getUrl() != null) {
                                         dbProvider.setApiUrl(fileProperty.getUrl());
                                     }
