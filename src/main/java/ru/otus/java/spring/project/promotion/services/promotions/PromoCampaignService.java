@@ -1,7 +1,7 @@
 package ru.otus.java.spring.project.promotion.services.promotions;
 
-import ru.otus.java.spring.project.promotion.domains.promotions.PromoCampaignResult;
-import ru.otus.java.spring.project.promotion.domains.promotions.PromoCampaignStatus;
+import ru.otus.java.spring.project.promotion.enums.PromoCampaignResult;
+import ru.otus.java.spring.project.promotion.enums.PromoCampaignStatus;
 import ru.otus.java.spring.project.promotion.dtos.request.PromoCampaignRqDto;
 import ru.otus.java.spring.project.promotion.dtos.response.PromoCampaignDto;
 

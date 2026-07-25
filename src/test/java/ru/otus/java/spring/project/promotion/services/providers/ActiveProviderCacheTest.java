@@ -1,8 +1,11 @@
 package ru.otus.java.spring.project.promotion.services.providers;
 
 import org.junit.jupiter.api.*;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import ru.otus.java.spring.project.promotion.services.cache.ActiveProviderCache;
 import ru.otus.java.spring.project.promotion.configs.IntegrationPropertyFileConfig;
 import ru.otus.java.spring.project.promotion.domains.providers.Provider;
 import ru.otus.java.spring.project.promotion.integrations.ProviderRestClient;
@@ -16,10 +19,11 @@ import static org.mockito.Mockito.when;
 
 @DisplayName("Сервис для работы с настройками провайдеров")
 @SpringBootTest
-public class ActiveProviderServiceTest {
+@EnableAutoConfiguration(exclude = WebMvcAutoConfiguration.class)
+public class ActiveProviderCacheTest {
 
     @MockitoBean
-    private ActiveProviderService activeProviderService;
+    private ActiveProviderCache activeProviderCache;
 
     @MockitoBean
     private ProviderRepository providerRepository;

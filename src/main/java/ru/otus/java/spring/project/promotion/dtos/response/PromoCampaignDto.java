@@ -20,8 +20,6 @@ public class PromoCampaignDto {
 
     private LocalDateTime startDate;
 
-    private String messageGroupName;
-
     private String status;
 
     private String result;

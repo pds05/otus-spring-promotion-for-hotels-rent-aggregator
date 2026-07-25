@@ -9,6 +9,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+
 @Entity
 @Table(name = "ct_cities")
 public class CtCity {

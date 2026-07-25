@@ -7,6 +7,6 @@ import java.util.Optional;
 
 public interface CtHotelTypeRepository extends JpaRepository<CtHotelType, Long> {
 
-    Optional<CtHotelType> findByNameOrDescriptionContainingIgnoreCase(String name, String description);
+    Optional<CtHotelType> findByName(String name);
 
 }

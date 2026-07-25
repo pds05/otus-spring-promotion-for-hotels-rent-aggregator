@@ -2,7 +2,7 @@ package ru.otus.java.spring.project.promotion.services.providers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.otus.java.spring.project.promotion.domains.promotions.BusinessMethodEnum;
+import ru.otus.java.spring.project.promotion.enums.BusinessMethodEnum;
 import ru.otus.java.spring.project.promotion.domains.providers.ProviderApi;
 import ru.otus.java.spring.project.promotion.exceptions.ResourceNotFoundException;
 import ru.otus.java.spring.project.promotion.repositories.providers.ProviderApiRepository;

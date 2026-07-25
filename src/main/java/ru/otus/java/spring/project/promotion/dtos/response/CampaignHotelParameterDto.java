@@ -5,11 +5,11 @@ import lombok.*;
 import java.time.LocalDate;
 import java.util.List;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
+@Data
 public class CampaignHotelParameterDto {
 
     private Long id;
@@ -26,30 +26,4 @@ public class CampaignHotelParameterDto {
 
     private List<FoodTypeDto> foodTypes;
 
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Getter
-    @Setter
-    public static class HotelTypeDto {
-
-        private Long id;
-
-        private String name;
-
-    }
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Getter
-    @Setter
-    public static class FoodTypeDto {
-
-        private Long id;
-
-        private String name;
-
-    }
 }

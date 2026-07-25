@@ -7,6 +7,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.java.spring.project.promotion.domains.promotions.*;
+import ru.otus.java.spring.project.promotion.enums.PromoCampaignStatus;
+import ru.otus.java.spring.project.promotion.enums.PromoCampaignType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -54,7 +56,7 @@ public class PromoCampaignRepositoryTest {
         CampaignHotelParameter moscow = new CampaignHotelParameter();
         moscow.setDateIn(LocalDate.of(2027, 1, 2));
         moscow.setDateOut(LocalDate.of(2027, 1, 3));
-        moscow.setCityName("Москва");
+        moscow.setCity(entityManager.find(CtCity.class, 1L));
         moscow.setGuests(2);
         moscow.setCtHotelTypes(Set.of(
                 entityManager.find(CtHotelType.class, 1L),
@@ -69,7 +71,7 @@ public class PromoCampaignRepositoryTest {
         CampaignHotelParameter kazan = new CampaignHotelParameter();
         kazan.setDateIn(LocalDate.of(2027, 1, 2));
         kazan.setDateOut(LocalDate.of(2027, 1, 3));
-        kazan.setCityName("Казань");
+        kazan.setCity(entityManager.find(CtCity.class, 3L));
         kazan.setGuests(2);
         kazan.setCtHotelTypes(Set.of(entityManager.find(CtHotelType.class, 1L),
                 entityManager.find(CtHotelType.class, 3L)));
@@ -97,7 +99,7 @@ public class PromoCampaignRepositoryTest {
         optionalPromoCampaign.removeCampaignProvider(entityManager.find(CampaignProvider.class, 2L));
         optionalPromoCampaign.removeHotelParameter(optionalPromoCampaign.getHotelParameters().stream().toList().get(0));
         optionalPromoCampaign.setCampaignType(PromoCampaignType.LOW_COST_WITH_FOOD);
-        optionalPromoCampaign.getHotelParameters().stream().toList().get(0).setCityName("Сочи");
+        optionalPromoCampaign.getHotelParameters().stream().toList().get(0).setId(2L);
         optionalPromoCampaign.setStatus(PromoCampaignStatus.READY);
 
         var updatedPromoCampaign = promoCampaignRepository.save(optionalPromoCampaign);

@@ -23,8 +23,9 @@ public class CampaignHotelParameter {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "city_name")
-    private String cityName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "city_id")
+    private CtCity city;
 
     @Column(name = "date_in")
     private LocalDate dateIn;

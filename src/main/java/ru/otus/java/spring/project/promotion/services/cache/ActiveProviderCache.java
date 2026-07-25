@@ -1,4 +1,4 @@
-package ru.otus.java.spring.project.promotion.services.providers;
+package ru.otus.java.spring.project.promotion.services.cache;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +10,7 @@ import ru.otus.java.spring.project.promotion.exceptions.ApplicationException;
 import ru.otus.java.spring.project.promotion.exceptions.ResourceNotFoundException;
 import ru.otus.java.spring.project.promotion.repositories.providers.ProviderRepository;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,40 +18,63 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
-
-@Service("activeProviderService")
-public class ActiveProviderService implements ProviderService {
+@Service("activeProviderCache")
+public class ActiveProviderCache implements ModelCache<Provider> {
 
     private final IntegrationPropertyFileConfig integrationPropertyFileConfig;
 
     private final ProviderRepository providerRepository;
 
-    private static final Map<Long, Provider> ACTIVE_PROVIDER_CACHE = new HashMap<>();
+    private static final Map<Long, Provider> CACHE = new HashMap<>();
 
     @PostConstruct
-    private void initializeCache() {
-        ACTIVE_PROVIDER_CACHE.putAll(readActiveProviderFromDbAndProperty());
-        log.debug("Active providers initiated: {}", ACTIVE_PROVIDER_CACHE.values());
+    private void init() {
+        CACHE.putAll(readActiveProviderFromDbAndProperty());
+        log.debug("Active providers initiated: {}", CACHE.values());
+    }
+
+    @Override
+    public void put(Provider provider) {
+        CACHE.put(provider.getId(), provider);
+    }
+
+    @Override
+    public void remove(long id) {
+        CACHE.remove(id);
+    }
+
+    @Override
+    public int size() {
+        return CACHE.size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return CACHE.isEmpty();
+    }
+
+    @Override
+    public void putAll(Collection<Provider> models) {
+        CACHE.putAll(models.stream().collect(Collectors.toMap(Provider::getId, c -> c)));
     }
 
     @Override
     public List<Provider> getAll() {
-        return ACTIVE_PROVIDER_CACHE.values().stream().toList();
+        return CACHE.values().stream().toList();
     }
 
     @Override
-    public List<Provider> getByIds(List<Long> ids) {
-        return ACTIVE_PROVIDER_CACHE.values().stream().filter(provider -> ids.contains(provider.getId())).toList();
+    public List<Provider> getByIds(Collection<Long> ids) {
+        return CACHE.values().stream().filter(provider -> ids.contains(provider.getId())).toList();
     }
 
     @Override
-    public Provider getById(long id) {
-        return ACTIVE_PROVIDER_CACHE.get(id);
+    public Provider get(long id) {
+        return CACHE.get(id);
     }
 
-    @Override
     public Provider getByPropertyName(String propertyName) {
-        return ACTIVE_PROVIDER_CACHE.values().stream().filter(provider -> provider.getPropertyName().equals(propertyName))
+        return CACHE.values().stream().filter(provider -> provider.getPropertyName().equals(propertyName))
                 .findFirst()
                 .orElseGet(() -> providerRepository.findByPropertyNameIgnoreCase(propertyName)
                         .orElseThrow(() -> new ResourceNotFoundException("Provider not found")));
@@ -86,10 +110,10 @@ public class ActiveProviderService implements ProviderService {
     }
 
     public List<Long> checkDisableProviders(List<Long> providersIds) {
-        return providersIds.stream().filter(providerId -> !ACTIVE_PROVIDER_CACHE.containsKey(providerId)).toList();
+        return providersIds.stream().filter(providerId -> !CACHE.containsKey(providerId)).toList();
     }
 
     public void refreshProviders() {
-        initializeCache();
+        init();
     }
 }

@@ -36,7 +36,7 @@ public class TelegramRestClient {
         }
     }
 
-    public boolean sendMessage(String message) {
+    public void sendMessage(String message) {
         IntegrationPropertyFileConfig.TelegramProperty telegramProperty = integrationPropertyFileConfig.getTelegram();
         RestClient restClient = getRestClient();
 
@@ -62,7 +62,11 @@ public class TelegramRestClient {
                     log.warn("Failed request: {}", req);
                     throw new IntegrationException("TELEGRAM_ERROR", "Failed request, status=" + resp.getStatusCode() + ", message=" + resp.getStatusText());
                 });
-        return Objects.requireNonNull(response.body(TelegramResponse.class)).isOk();
+
+        var resp = response.body(TelegramResponse.class);
+        if (!Objects.requireNonNull(resp).isOk()) {
+            throw new IntegrationException("RESPONSE_NOK", "Telegram response return false");
+        }
     }
 
     private RestClient getRestClient() {

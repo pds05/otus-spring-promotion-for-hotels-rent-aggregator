@@ -6,6 +6,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.UpdateTimestamp;
+import ru.otus.java.spring.project.promotion.enums.PromoCampaignResult;
+import ru.otus.java.spring.project.promotion.enums.PromoCampaignStatus;
+import ru.otus.java.spring.project.promotion.enums.PromoCampaignType;
 import ru.otus.java.spring.project.promotion.exceptions.ResourceNotFoundException;
 
 import java.time.LocalDateTime;

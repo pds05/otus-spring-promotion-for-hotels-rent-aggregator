@@ -5,8 +5,8 @@ import ru.otus.java.spring.project.promotion.domains.promotions.CtFoodType;
 
 import java.util.Optional;
 
-public interface CtHotelFoodTypeRepository extends JpaRepository<CtFoodType, Long> {
+public interface CtFoodTypeRepository extends JpaRepository<CtFoodType, Long> {
 
-    Optional<CtFoodType> findByNameOrDescriptionContainingIgnoreCase(String name, String description);
+    Optional<CtFoodType> findByName(String name);
 
 }

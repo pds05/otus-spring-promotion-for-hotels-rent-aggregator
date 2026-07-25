@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.otus.java.spring.project.promotion.domains.promotions.*;
 import ru.otus.java.spring.project.promotion.dtos.request.PromoCampaignRqDto;
 import ru.otus.java.spring.project.promotion.dtos.response.PromoCampaignDto;
+import ru.otus.java.spring.project.promotion.enums.PromoCampaignResult;
+import ru.otus.java.spring.project.promotion.enums.PromoCampaignStatus;
 import ru.otus.java.spring.project.promotion.exceptions.ApplicationException;
 import ru.otus.java.spring.project.promotion.exceptions.ResourceNotFoundException;
 import ru.otus.java.spring.project.promotion.repositories.promotions.PromoCampaignRepository;

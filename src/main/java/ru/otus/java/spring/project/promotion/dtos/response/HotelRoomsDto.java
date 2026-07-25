@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
+@Data
 public class HotelRoomsDto {
 
     private Long id;

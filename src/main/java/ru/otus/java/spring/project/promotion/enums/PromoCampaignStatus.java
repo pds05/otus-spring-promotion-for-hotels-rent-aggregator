@@ -1,4 +1,4 @@
-package ru.otus.java.spring.project.promotion.domains.promotions;
+package ru.otus.java.spring.project.promotion.enums;
 
 public enum PromoCampaignStatus {
 

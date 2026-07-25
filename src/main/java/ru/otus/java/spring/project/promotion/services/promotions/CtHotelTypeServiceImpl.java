@@ -1,8 +1,13 @@
 package ru.otus.java.spring.project.promotion.services.promotions;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import ru.otus.java.spring.project.promotion.services.cache.HotelTypeCache;
 import ru.otus.java.spring.project.promotion.domains.promotions.CtHotelType;
+import ru.otus.java.spring.project.promotion.dtos.response.HotelTypeDto;
+import ru.otus.java.spring.project.promotion.exceptions.ResourceNotFoundException;
 import ru.otus.java.spring.project.promotion.repositories.promotions.CtHotelTypeRepository;
 
 import java.util.List;
@@ -13,28 +18,75 @@ public class CtHotelTypeServiceImpl implements CtHotelTypeService {
 
     private final CtHotelTypeRepository ctHotelTypeRepository;
 
+    private final ModelMapper modelMapper;
+
+    private final HotelTypeCache hotelTypeCache;
+
     @Override
-    public CtHotelType getById(long id) {
-        return ctHotelTypeRepository.findById(id).orElse(null);
+    public HotelTypeDto getById(long id) {
+        CtHotelType ctHotelType;
+        if (hotelTypeCache.get(id) == null) {
+            ctHotelType = ctHotelTypeRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Hotel type with id " + id + " not found"));
+            hotelTypeCache.put(ctHotelType);
+        }
+        return modelMapper.map(hotelTypeCache.get(id), HotelTypeDto.class);
     }
 
     @Override
-    public CtHotelType getByName(String name) {
-        return ctHotelTypeRepository.findByNameOrDescriptionContainingIgnoreCase(name, name).orElse(null);
+    public HotelTypeDto getByName(String name) {
+        CtHotelType ctHotelType = hotelTypeCache.getAll().stream().filter(hotelType -> hotelType.getName().equals(name)).findFirst().orElse(null);
+        if (ctHotelType == null) {
+            ctHotelType = ctHotelTypeRepository.findByName(name).orElseThrow(() -> new ResourceNotFoundException("Hotel type with name " + name + " not found"));
+            hotelTypeCache.put(ctHotelType);
+        }
+        return modelMapper.map(ctHotelType, HotelTypeDto.class);
     }
 
     @Override
-    public List<CtHotelType> getAll() {
-        return ctHotelTypeRepository.findAll();
+    public List<HotelTypeDto> getAll() {
+        if (hotelTypeCache.isEmpty()) {
+            List<CtHotelType> hotelTypes = ctHotelTypeRepository.findAll();
+            if (hotelTypes.isEmpty()) {
+                throw new ResourceNotFoundException("Hotel types not found");
+            }
+            hotelTypeCache.putAll(hotelTypes);
+        }
+
+        return modelMapper.map(hotelTypeCache.getAll(), new TypeReference<List<HotelTypeDto>>() {
+        }.getType());
     }
 
     @Override
-    public CtHotelType save(CtHotelType ctHotelType) {
-        return ctHotelTypeRepository.save(ctHotelType);
+    public HotelTypeDto save(String name, String description) {
+        CtHotelType ctHotelType = new CtHotelType();
+        ctHotelType.setName(name);
+        ctHotelType.setDescription(description);
+
+        ctHotelType = ctHotelTypeRepository.save(ctHotelType);
+
+        hotelTypeCache.put(ctHotelType);
+
+        return modelMapper.map(ctHotelType, HotelTypeDto.class);
     }
 
     @Override
-    public void delete(CtHotelType ctHotelType) {
-        ctHotelTypeRepository.delete(ctHotelType);
+    public HotelTypeDto update(long id, String name, String description) {
+        CtHotelType hotelType = hotelTypeCache.get(id);
+        if (hotelType == null) {
+            hotelType = ctHotelTypeRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Hotel type with id " + id + " not found"));
+        }
+        hotelType.setName(name);
+        hotelType.setDescription(description);
+
+        hotelType = ctHotelTypeRepository.save(hotelType);
+
+        hotelTypeCache.put(hotelType);
+
+        return modelMapper.map(hotelType, HotelTypeDto.class);
+    }
+
+    @Override
+    public void delete(long id) {
+        ctHotelTypeRepository.deleteById(id);
     }
 }

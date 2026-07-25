@@ -5,19 +5,21 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import ru.otus.java.spring.project.promotion.domains.promotions.PromoCampaignResult;
-import ru.otus.java.spring.project.promotion.domains.promotions.PromoCampaignStatus;
-import ru.otus.java.spring.project.promotion.domains.promotions.PromoCampaignType;
+import ru.otus.java.spring.project.promotion.enums.PromoCampaignResult;
+import ru.otus.java.spring.project.promotion.enums.PromoCampaignStatus;
+import ru.otus.java.spring.project.promotion.enums.PromoCampaignType;
 import ru.otus.java.spring.project.promotion.domains.providers.Provider;
 import ru.otus.java.spring.project.promotion.dtos.request.CampaignHotelParameterRqDto;
 import ru.otus.java.spring.project.promotion.dtos.request.PromoCampaignRqDto;
 import ru.otus.java.spring.project.promotion.exceptions.ResourceNotFoundException;
 import ru.otus.java.spring.project.promotion.integrations.ProviderRestClient;
 import ru.otus.java.spring.project.promotion.integrations.TelegramRestClient;
-import ru.otus.java.spring.project.promotion.services.providers.ActiveProviderService;
+import ru.otus.java.spring.project.promotion.services.cache.ActiveProviderCache;
 import ru.otus.java.spring.project.promotion.services.providers.ProviderServiceImpl;
 import ru.otus.java.spring.project.promotion.tasks.PromoCampaignExecutor;
 
@@ -32,6 +34,7 @@ import java.util.List;
 
 @DisplayName("Сервис для работы с промо-кампаниями")
 @SpringBootTest
+@EnableAutoConfiguration(exclude = WebMvcAutoConfiguration.class)
 public class PromoCampaignManagerTest {
 
     public static final long MIGRATED_PROMO_CAMPAIGN_ID = 100L;
@@ -43,7 +46,7 @@ public class PromoCampaignManagerTest {
     private ProviderServiceImpl providerService;
 
     @MockitoBean
-    private ActiveProviderService activeProviderService;
+    private ActiveProviderCache activeProviderCache;
 
     @MockitoBean
     private ProviderRestClient providerRestClient;
@@ -203,7 +206,7 @@ public class PromoCampaignManagerTest {
         request.setProviderIds(List.of(1L, 2L));
 
         CampaignHotelParameterRqDto moscowParameter = new CampaignHotelParameterRqDto();
-        moscowParameter.setCityName("Москва");
+        moscowParameter.setCityId(1L);
         moscowParameter.setGuests(2);
         moscowParameter.setDateIn(LocalDate.of(2026, Month.AUGUST, 2));
         moscowParameter.setDateOut(LocalDate.of(2026, Month.AUGUST, 3));
@@ -211,7 +214,7 @@ public class PromoCampaignManagerTest {
         moscowParameter.setFoodTypeIds(List.of(1L, 2L, 3L, 4L));
 
         CampaignHotelParameterRqDto kazanParameter = new CampaignHotelParameterRqDto();
-        kazanParameter.setCityName("Казань");
+        kazanParameter.setCityId(3L);
         kazanParameter.setGuests(4);
         kazanParameter.setDateIn(LocalDate.of(2026, Month.AUGUST, 2));
         kazanParameter.setDateOut(LocalDate.of(2026, Month.AUGUST, 3));

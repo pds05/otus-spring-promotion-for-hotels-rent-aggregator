@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import ru.otus.java.spring.project.promotion.domains.promotions.BusinessMethodEnum;
+import ru.otus.java.spring.project.promotion.enums.BusinessMethodEnum;
 
 @ToString
 @Getter

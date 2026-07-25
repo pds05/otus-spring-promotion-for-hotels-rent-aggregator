@@ -4,8 +4,6 @@ import java.math.BigDecimal;
 
 public class HotelRoom {
 
-
-
     private String city;
 
     private Long hotelId;

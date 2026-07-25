@@ -59,8 +59,10 @@ public class PromoCampaignDataHandler {
                     List<ProviderHotelData> providerHotelData;
 
                     switch (promoCampaign.getCampaignType()) {
-                        case LOW_COST -> providerHotelData = providerHotelDataRepository.findWithMinPrice(promoCampaign.getId(), param.getCityName());
-                        case LOW_COST_WITH_FOOD -> providerHotelData = providerHotelDataRepository.findWithMinPriceAndFood(promoCampaign.getId(), param.getCityName(), param.getCtFoodTypes().stream().map(CtFoodType::getDescription).toList());
+                        case LOW_COST -> providerHotelData = providerHotelDataRepository.findWithMinPrice(promoCampaign.getId(), param.getCity().getTitle());
+                        case LOW_COST_WITH_FOOD -> providerHotelData = providerHotelDataRepository.findWithMinPriceAndFood(promoCampaign.getId(),
+                                param.getCity().getTitle(),
+                                param.getCtFoodTypes().stream().map(CtFoodType::getDescription).toList());
                         default -> providerHotelData = Collections.emptyList();
                     }
 

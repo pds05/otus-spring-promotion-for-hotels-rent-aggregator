@@ -17,6 +17,7 @@ import ru.otus.java.spring.project.promotion.domains.providers.Provider;
 import ru.otus.java.spring.project.promotion.domains.providers.ProviderApi;
 import ru.otus.java.spring.project.promotion.exceptions.IntegrationException;
 import ru.otus.java.spring.project.promotion.dtos.request.ProviderRequestDto;
+import ru.otus.java.spring.project.promotion.services.cache.ActiveProviderCache;
 import ru.otus.java.spring.project.promotion.services.providers.ProviderService;
 
 import java.net.URI;
@@ -33,7 +34,7 @@ public class ProviderRestClient {
 
     private final ObjectMapper objectMapper;
 
-    private final ProviderService activeProviderService;
+    private final ActiveProviderCache activeProviderCache;
 
     public <T> List<T> sendMessage(ProviderApi api, ProviderRequestDto request, ParameterizedTypeReference<List<T>> responseType) {
         RestClient.ResponseSpec responseSpec = doGetRequest(api, request);
@@ -45,7 +46,7 @@ public class ProviderRestClient {
             throw new IntegrationException("REST_METHOD_ERROR", "Rest method " + api.getRestMethod() + " is not supported");
         }
 
-        Provider provider = activeProviderService.getById(api.getProviderId());
+        Provider provider = activeProviderCache.get(api.getProviderId());
         RestClient restClient = getRestClient(provider);
         Map<String, Object> map = objectMapper.convertValue(request, new TypeReference<>() {
         });

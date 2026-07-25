@@ -12,10 +12,14 @@ import ru.otus.java.spring.project.promotion.domains.providers.Provider;
 import ru.otus.java.spring.project.promotion.domains.providers.ProviderApi;
 import ru.otus.java.spring.project.promotion.dtos.request.ProviderRequestDto;
 import ru.otus.java.spring.project.promotion.dtos.response.HotelRoomsDto;
+import ru.otus.java.spring.project.promotion.enums.BusinessMethodEnum;
+import ru.otus.java.spring.project.promotion.enums.PromoCampaignResult;
+import ru.otus.java.spring.project.promotion.enums.PromoCampaignStatus;
+import ru.otus.java.spring.project.promotion.enums.PromoCampaignType;
 import ru.otus.java.spring.project.promotion.integrations.ProviderRestClient;
 import ru.otus.java.spring.project.promotion.integrations.TelegramRestClient;
 import ru.otus.java.spring.project.promotion.repositories.promotions.PromoCampaignRepository;
-import ru.otus.java.spring.project.promotion.services.providers.ActiveProviderService;
+import ru.otus.java.spring.project.promotion.services.cache.ActiveProviderCache;
 import ru.otus.java.spring.project.promotion.services.providers.ProviderService;
 
 import java.time.LocalDateTime;
@@ -32,7 +36,7 @@ public class PromoCampaignExecutor {
 
     private final PromoCampaignRepository promoCampaignRepository;
 
-    private final ProviderService activeProviderService;
+    private final ActiveProviderCache activeProviderCache;
 
     private final ProviderService providerService;
 
@@ -59,7 +63,7 @@ public class PromoCampaignExecutor {
 
             try {
                 Set<CampaignProvider> campaignProviders = promoCampaign.getCampaignProviders();
-                List<Provider> activeProviders = activeProviderService.getByIds(campaignProviders.stream()
+                List<Provider> activeProviders = activeProviderCache.getByIds(campaignProviders.stream()
                         .map(CampaignProvider::getProviderId).toList());
 
                 for (Provider provider : activeProviders) {
@@ -141,9 +145,9 @@ public class PromoCampaignExecutor {
 
     private void setCompletedStatus(PromoCampaignData campaignData, Set<CampaignProvider> campaignProviders) {
         PromoCampaign promoCampaign = checkResultAndSetStatus(campaignData);
-        if (campaignProviders.size() > activeProviderService.getAll().size()) {
+        if (campaignProviders.size() > activeProviderCache.size()) {
 
-            List<Long> disableProviderIds = ((ActiveProviderService) activeProviderService).checkDisableProviders(promoCampaign.getProviderIds());
+            List<Long> disableProviderIds = activeProviderCache.checkDisableProviders(promoCampaign.getProviderIds());
             providerService.getByIds(disableProviderIds).forEach(p -> campaignData.addErrorMessage(p.getTitle().concat(" отключен")));
         }
         log.debug("Promo campaign completed - {}: {}", promoCampaign.getResult(), promoCampaign);
@@ -167,7 +171,7 @@ public class PromoCampaignExecutor {
 
     private ProviderRequestDto createProviderRequest(CampaignHotelParameter campaignHotelParameter) {
         ProviderRequestDto request = new ProviderRequestDto();
-        request.setCity(campaignHotelParameter.getCityName());
+        request.setCity(campaignHotelParameter.getCity().getTitle());
         request.setDateIn(campaignHotelParameter.getDateIn());
         request.setDateOut(campaignHotelParameter.getDateOut());
         request.setHotelTypes(campaignHotelParameter.getCtHotelTypes().stream().map(CtHotelType::getName).toList());

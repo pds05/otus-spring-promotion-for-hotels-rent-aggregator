@@ -1,3 +1,5 @@
+server:
+  port: 8088
 spring:
   application:
     name: promotion-service
@@ -57,7 +59,7 @@ integration:
       read-timeout: 20s
       connect-timeout: 5s
       topic-prefix: nafNaf
-      enable: false
+      enable: true
     nufNuf:
       url: http://localhost:8083/api/v1
       read-timeout: 20s

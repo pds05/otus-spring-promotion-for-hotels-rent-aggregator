@@ -1,18 +1,20 @@
 package ru.otus.java.spring.project.promotion.services.promotions;
 
-import ru.otus.java.spring.project.promotion.domains.promotions.CtHotelType;
+import ru.otus.java.spring.project.promotion.dtos.response.HotelTypeDto;
 
 import java.util.List;
 
 public interface CtHotelTypeService {
 
-    CtHotelType getById(long id);
+    HotelTypeDto getById(long id);
 
-    CtHotelType getByName(String name);
+    HotelTypeDto getByName(String name);
 
-    List<CtHotelType> getAll();
+    List<HotelTypeDto> getAll();
 
-    CtHotelType save(CtHotelType ctHotelType);
+    HotelTypeDto save(String name, String description);
 
-    void delete(CtHotelType ctHotelType);
+    HotelTypeDto update(long id, String name, String description);
+
+    void delete(long id);
 }

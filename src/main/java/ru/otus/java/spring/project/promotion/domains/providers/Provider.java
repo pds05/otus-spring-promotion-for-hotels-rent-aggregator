@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.*;
-import ru.otus.java.spring.project.promotion.domains.promotions.BusinessMethodEnum;
+import ru.otus.java.spring.project.promotion.enums.BusinessMethodEnum;
 
 import java.time.Duration;
 import java.time.LocalDateTime;

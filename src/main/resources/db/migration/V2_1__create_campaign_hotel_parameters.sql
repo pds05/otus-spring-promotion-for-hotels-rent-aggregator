@@ -2,11 +2,12 @@ create table if not exists campaign_hotel_parameters
 (
     id          serial primary key,
     campaign_id int,
-    city_name   varchar(50) not null,
-    date_in     date        not null default CURRENT_DATE + 1,
-    date_out    date        not null default CURRENT_DATE + 2,
-    guests      int         not null default 1,
-    CONSTRAINT fk_promo_campaigns_hotel_parameters FOREIGN KEY (campaign_id) references promo_campaigns (id) ON DELETE CASCADE ON UPDATE CASCADE
+    city_id     int,
+    date_in     date not null default CURRENT_DATE + 1,
+    date_out    date not null default CURRENT_DATE + 2,
+    guests      int  not null default 1,
+    CONSTRAINT fk_promo_campaigns_hotel_parameters FOREIGN KEY (campaign_id) references promo_campaigns (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_city_campaigns_hotel_parameters FOREIGN KEY (city_id) references ct_cities (id) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
 
 create table if not exists campaign_hotel_parameters_ct_hotel_type_rel
