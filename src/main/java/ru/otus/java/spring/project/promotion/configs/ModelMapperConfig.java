@@ -126,7 +126,7 @@ public class ModelMapperConfig {
                         foodTypes = new HashSet<>(foodTypeCache.getByIds(req.getFoodTypeIds()));
                     }
                     CtCity city = citiesCache.get(req.getCityId());
-                    return new CampaignHotelParameter(req.getId(), city, req.getDateIn(), req.getDateOut(), req.getGuests(), hotelTypes, foodTypes);
+                    return new CampaignHotelParameter(req.getId(), city, req.getCampaignId(), req.getDateIn(), req.getDateOut(), req.getGuests(), hotelTypes, foodTypes);
                 }).collect(Collectors.toSet());
 
         Converter<List<Long>, Set<CampaignProvider>> campaignProviderIdToModelListConverter = m ->
@@ -163,10 +163,15 @@ public class ModelMapperConfig {
         Converter<List<Long>, Set<CtFoodType>> foodTypeConverter = mc ->
                 new HashSet<>(foodTypeCache.getByIds(mc.getSource()));
 
-        mapper.createTypeMap(CampaignHotelParameterDto.class, CampaignHotelParameter.class)
+        Converter<Long, CtCity> cityConverter = mc -> citiesCache.get(mc.getSource());
+
+        mapper.createTypeMap(CampaignHotelParameterRqDto.class, CampaignHotelParameter.class)
+                .addMapping(CampaignHotelParameterRqDto::getCampaignId, CampaignHotelParameter::setCampaignId)
+                .addMappings(mc -> mc.using(cityConverter)
+                        .map(CampaignHotelParameterRqDto::getCityId, CampaignHotelParameter::setCity))
                 .addMappings(mc -> mc.using(hotelTypeConverter)
-                        .map(CampaignHotelParameterDto::getHotelTypes, CampaignHotelParameter::setCtHotelTypes))
+                        .map(CampaignHotelParameterRqDto::getHotelTypeIds, CampaignHotelParameter::setCtHotelTypes))
                 .addMappings(mc -> mc.using(foodTypeConverter)
-                        .map(CampaignHotelParameterDto::getFoodTypes, CampaignHotelParameter::setCtFoodTypes));
+                        .map(CampaignHotelParameterRqDto::getFoodTypeIds, CampaignHotelParameter::setCtFoodTypes));
     }
 }

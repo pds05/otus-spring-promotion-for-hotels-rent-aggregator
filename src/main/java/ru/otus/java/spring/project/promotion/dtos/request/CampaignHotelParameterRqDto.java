@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
 import ru.otus.java.spring.project.promotion.validators.DateRangeValid;
@@ -31,7 +30,7 @@ public class CampaignHotelParameterRqDto {
     @JsonSetter(nulls = Nulls.SKIP)
     private Long campaignId;
 
-    @NotBlank(message = CITY_ID_FIELD + " is not valid")
+    @Positive
     private Long cityId;
 
     @FutureOrPresent(message = DATE_IN_FIELD + " check-in date must be greater or equal to the current date")

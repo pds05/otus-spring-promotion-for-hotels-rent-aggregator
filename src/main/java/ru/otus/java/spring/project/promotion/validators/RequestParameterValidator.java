@@ -5,7 +5,6 @@ import jakarta.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;
 import ru.otus.java.spring.project.promotion.enums.PromoCampaignType;
 
-
 @RequiredArgsConstructor
 public class RequestParameterValidator implements ConstraintValidator<RequestParameterValid, String> {
 

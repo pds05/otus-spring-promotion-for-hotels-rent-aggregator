@@ -27,6 +27,9 @@ public class CampaignHotelParameter {
     @JoinColumn(name = "city_id")
     private CtCity city;
 
+    @Column(name = "campaign_id")
+    private Long campaignId;
+
     @Column(name = "date_in")
     private LocalDate dateIn;
 

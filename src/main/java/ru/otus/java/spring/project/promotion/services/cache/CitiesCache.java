@@ -2,6 +2,7 @@ package ru.otus.java.spring.project.promotion.services.cache;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.otus.java.spring.project.promotion.domains.promotions.CtCity;
 import ru.otus.java.spring.project.promotion.repositories.promotions.CtCitiesRepository;
@@ -9,6 +10,7 @@ import ru.otus.java.spring.project.promotion.repositories.promotions.CtCitiesRep
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service("citiesCache")
 public class CitiesCache implements ModelCache<CtCity> {
