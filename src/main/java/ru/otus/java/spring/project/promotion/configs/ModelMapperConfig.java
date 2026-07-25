@@ -23,7 +23,6 @@ import ru.otus.java.spring.project.promotion.services.providers.ProviderService;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -50,10 +49,13 @@ public class ModelMapperConfig {
                 .setFieldMatchingEnabled(true)
                 .setSkipNullEnabled(true)
                 .setFieldAccessLevel(PRIVATE);
+
         mappingPromoCampaignToDto(mapper);
         mappingCampaignRqDtoToDomain(mapper);
         mappingCtHotelTypeToDto(mapper);
         mappingCtFoodTypeToDto(mapper);
+        mappingCampaignHotelParameterToDto(mapper);
+        mappingCampaignHotelParameterDtoToDomain(mapper);
 
         return mapper;
     }
@@ -72,7 +74,7 @@ public class ModelMapperConfig {
         Converter<Set<CampaignProvider>, List<PromoCampaignDto.ProviderDto>> providerToDtoConverter = mc -> mc.getSource().stream()
                 .map(provider -> {
                     long providerId = provider.getProviderId();
-                    String providerName = providerService.getById(providerId).getTitle();
+                    String providerName = providerService.getById(providerId).getDescription();
                     return new PromoCampaignDto.ProviderDto(providerId, providerName);
                 }).toList();
 
@@ -80,7 +82,10 @@ public class ModelMapperConfig {
 
         Converter<PromoCampaignStatus, String> campaignStatusStringConverter = mc -> mc.getSource().getDescription();
 
-        Converter<PromoCampaignResult, String> campaignResultConverter = mc -> Optional.ofNullable(mc.getSource()).orElse(PromoCampaignResult.NOK_FAILED).getDescription();
+        Converter<PromoCampaignResult, String> campaignResultConverter = mc -> {
+            var result = mc.getSource();
+            return result == null ? null : result.getDescription();
+        };
 
         Converter<Set<CampaignHotelParameter>, List<CampaignHotelParameterDto>> parameterConverter = mc ->
                 mc.getSource().stream().map(parameter -> new CampaignHotelParameterDto(parameter.getId(),
@@ -134,5 +139,34 @@ public class ModelMapperConfig {
                         .map(PromoCampaignRqDto::getHotelParameters, PromoCampaign::setHotelParameters))
                 .addMappings(mc -> mc.using(campaignProviderIdToModelListConverter)
                         .map(PromoCampaignRqDto::getProviderIds, PromoCampaign::setCampaignProviders));
+    }
+
+    private void mappingCampaignHotelParameterToDto(ModelMapper mapper) {
+        Converter<Set<CtFoodType>, List<FoodTypeDto>> foodConverter = mc ->
+                mc.getSource().stream().map(domain -> new FoodTypeDto(domain.getId(), domain.getDescription())).toList();
+
+        Converter<Set<CtHotelType>, List<HotelTypeDto>> hotelTypeConverter = mc ->
+                mc.getSource().stream().map(domain -> new HotelTypeDto(domain.getId(), domain.getDescription())).toList();
+
+        mapper.createTypeMap(CampaignHotelParameter.class, CampaignHotelParameterDto.class)
+                .addMapping(domain -> domain.getCity().getTitle(), CampaignHotelParameterDto::setCityName)
+                .addMappings(mc -> mc.using(hotelTypeConverter)
+                        .map(CampaignHotelParameter::getCtHotelTypes, CampaignHotelParameterDto::setHotelTypes))
+                .addMappings(mc -> mc.using(foodConverter)
+                        .map(CampaignHotelParameter::getCtFoodTypes, CampaignHotelParameterDto::setFoodTypes));
+    }
+
+    private void mappingCampaignHotelParameterDtoToDomain(ModelMapper mapper) {
+        Converter<List<Long>, Set<CtHotelType>> hotelTypeConverter = mc ->
+                new HashSet<>(hotelTypeCache.getByIds(mc.getSource()));
+
+        Converter<List<Long>, Set<CtFoodType>> foodTypeConverter = mc ->
+                new HashSet<>(foodTypeCache.getByIds(mc.getSource()));
+
+        mapper.createTypeMap(CampaignHotelParameterDto.class, CampaignHotelParameter.class)
+                .addMappings(mc -> mc.using(hotelTypeConverter)
+                        .map(CampaignHotelParameterDto::getHotelTypes, CampaignHotelParameter::setCtHotelTypes))
+                .addMappings(mc -> mc.using(foodTypeConverter)
+                        .map(CampaignHotelParameterDto::getFoodTypes, CampaignHotelParameter::setCtFoodTypes));
     }
 }

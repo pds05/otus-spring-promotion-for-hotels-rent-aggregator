@@ -17,9 +17,6 @@ public class CtCity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "phone_prefix", length = 6)
-    private String phonePrefix;
-
     @NotEmpty
     @Column(name = "title", length = 50)
     private String title;

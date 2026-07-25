@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.otus.java.spring.project.promotion.services.cache.FoodTypeCache;
 import ru.otus.java.spring.project.promotion.domains.promotions.CtFoodType;
 import ru.otus.java.spring.project.promotion.dtos.response.FoodTypeDto;
@@ -22,6 +23,7 @@ public class CtFoodTypeServiceImpl implements CtFoodTypeService {
 
     private final FoodTypeCache foodTypeCache;
 
+    @Transactional(readOnly = true)
     @Override
     public FoodTypeDto getById(long id) {
         CtFoodType ctFoodType;
@@ -32,6 +34,7 @@ public class CtFoodTypeServiceImpl implements CtFoodTypeService {
         return modelMapper.map(foodTypeCache.get(id), FoodTypeDto.class);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public FoodTypeDto getByName(String name) {
         CtFoodType ctFoodType = foodTypeCache.getAll().stream().filter(food -> food.getName().equals(name)).findFirst().orElse(null);
@@ -42,12 +45,13 @@ public class CtFoodTypeServiceImpl implements CtFoodTypeService {
         return modelMapper.map(ctFoodType, FoodTypeDto.class);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<FoodTypeDto> getAll() {
         if (foodTypeCache.isEmpty()) {
             List<CtFoodType> foodTypes = ctFoodTypeRepository.findAll();
             if (foodTypes.isEmpty()) {
-                throw new ResourceNotFoundException("Foods not found");
+                throw new ResourceNotFoundException("Food types not found");
             }
             foodTypeCache.putAll(foodTypes);
         }
@@ -56,6 +60,7 @@ public class CtFoodTypeServiceImpl implements CtFoodTypeService {
         }.getType());
     }
 
+    @Transactional
     @Override
     public FoodTypeDto save(String name, String description) {
         CtFoodType ctFoodType = new CtFoodType();
@@ -69,6 +74,7 @@ public class CtFoodTypeServiceImpl implements CtFoodTypeService {
         return modelMapper.map(ctFoodType, FoodTypeDto.class);
     }
 
+    @Transactional
     @Override
     public FoodTypeDto update(long id, String name, String description) {
         CtFoodType foodType = foodTypeCache.get(id);
@@ -85,6 +91,7 @@ public class CtFoodTypeServiceImpl implements CtFoodTypeService {
         return modelMapper.map(foodType, FoodTypeDto.class);
     }
 
+    @Transactional
     @Override
     public void delete(long id) {
         ctFoodTypeRepository.deleteById(id);

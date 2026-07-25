@@ -1,6 +1,6 @@
 package ru.otus.java.spring.project.promotion.controllers.rest;
 
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,21 +17,21 @@ public class PromoCampaignRestController {
 
     private final PromoCampaignService promoCampaignService;
 
-    @GetMapping("/api/v1/promo_campaign")
+    @GetMapping(value = "/api/v1/promo_campaign", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public List<PromoCampaignDto> getAllPromoCampaigns() {
         return promoCampaignService.getAll();
     }
 
-    @GetMapping("/api/v1/promo_campaign/{id}")
+    @GetMapping(value = "/api/v1/promo_campaign/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public PromoCampaignDto getPromoCampaign(@Positive @PathVariable Long id) {
+    public PromoCampaignDto getPromoCampaign(@PathVariable Long id) {
         return promoCampaignService.get(id);
     }
 
     @DeleteMapping("/api/v1/promo_campaign/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deletePromoCampaign(@Positive @PathVariable Long id) {
+    public void deletePromoCampaign(@PathVariable Long id) {
         promoCampaignService.delete(id);
     }
 
@@ -39,17 +39,28 @@ public class PromoCampaignRestController {
             consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
-    public PromoCampaignDto savePromoCampaign(@RequestBody PromoCampaignRqDto promoCampaignRequest) {
+    public PromoCampaignDto savePromoCampaign(@Valid @RequestBody PromoCampaignRqDto promoCampaignRequest) {
         return promoCampaignService.save(promoCampaignRequest);
     }
 
-//    @PutMapping(value = "/api/v1/promo_campaign/{id}",
-//            consumes = {MediaType.APPLICATION_JSON_VALUE},
-//            produces = {MediaType.APPLICATION_JSON_VALUE})
-//    public PromoCampaignDto updatePromoCampaign(@RequestBody PromoCampaignRqDto promoCampaignRequest,
-//                                                @PathVariable("id") Long id) {
-//        return promoCampaignService.
-//
-//    }
+    @PutMapping(value = "/api/v1/promo_campaign/{id}",
+            consumes = {MediaType.APPLICATION_JSON_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE})
+    @ResponseStatus(HttpStatus.OK)
+    public PromoCampaignDto updatePromoCampaign(@Valid @RequestBody PromoCampaignRqDto promoCampaignRequest,
+                                                @PathVariable("id") Long id) {
+        promoCampaignRequest.setId(id);
+        return promoCampaignService.save(promoCampaignRequest);
+    }
+
+    @PutMapping(value = "/api/v1/promo_campaign/start/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public PromoCampaignDto startPromoCampaign(@PathVariable("id") Long id) {
+        return promoCampaignService.start(id);
+    }
+
+    @PutMapping(value = "/api/v1/promo_campaign/stop/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public PromoCampaignDto stopPromoCampaign(@PathVariable("id") Long id) {
+        return promoCampaignService.stop(id);
+    }
 
 }

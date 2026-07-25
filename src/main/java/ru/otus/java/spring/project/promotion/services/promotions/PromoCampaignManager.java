@@ -10,6 +10,7 @@ import ru.otus.java.spring.project.promotion.dtos.response.PromoCampaignDto;
 import ru.otus.java.spring.project.promotion.enums.PromoCampaignResult;
 import ru.otus.java.spring.project.promotion.enums.PromoCampaignStatus;
 import ru.otus.java.spring.project.promotion.exceptions.ApplicationException;
+import ru.otus.java.spring.project.promotion.exceptions.BusinessLogicException;
 import ru.otus.java.spring.project.promotion.exceptions.ResourceNotFoundException;
 import ru.otus.java.spring.project.promotion.repositories.promotions.PromoCampaignRepository;
 
@@ -47,13 +48,13 @@ public class PromoCampaignManager implements PromoCampaignService {
         if (request.getId() != null) {
             promoCampaign = promoCampaignRepository.findById(request.getId()).orElseThrow(() -> new ResourceNotFoundException("Promo campaign id " + request.getId() + " not found"));
             if (promoCampaign.getStatus() == PromoCampaignStatus.READY) {
-                throw new ApplicationException("Need to stop the campaign before changing");
+                throw new BusinessLogicException("CONDITION_ERROR", "Need to stop the campaign before changing");
             }
             if (promoCampaign.getStatus() == PromoCampaignStatus.IN_PROGRESS) {
-                throw new ApplicationException("Promo campaign is in progress and cannot be changed");
+                throw new BusinessLogicException("CONDITION_ERROR","Promo campaign is in progress and cannot be changed");
             }
             if (promoCampaign.getStatus() == PromoCampaignStatus.COMPLETED) {
-                throw new ApplicationException("Promo campaign is completed and cannot be changed");
+                throw new BusinessLogicException("CONDITION_ERROR", "Promo campaign is completed and cannot be changed");
             }
         } else {
             promoCampaign = new PromoCampaign();

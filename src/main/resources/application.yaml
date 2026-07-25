@@ -67,7 +67,7 @@ integration:
       topic-prefix: nufNuf
       enable: false
 executor:
-  delay: 1000
+  delay: 5000
 
 logging:
   level:

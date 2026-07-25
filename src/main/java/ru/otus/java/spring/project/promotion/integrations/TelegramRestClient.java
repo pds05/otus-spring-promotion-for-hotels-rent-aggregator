@@ -1,6 +1,5 @@
 package ru.otus.java.spring.project.promotion.integrations;
 
-import jakarta.annotation.PostConstruct;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,13 +27,6 @@ public class TelegramRestClient {
 
     @Value("${botToken:none}") // set jvm argument
     private String botToken;
-
-    @PostConstruct
-    private void init() {
-        if (botToken.equals("none")) {
-            throw new ApplicationException("Telegram Bot token is mandatory, set application argument '--botToken={TOKEN}'");
-        }
-    }
 
     public void sendMessage(String message) {
         IntegrationPropertyFileConfig.TelegramProperty telegramProperty = integrationPropertyFileConfig.getTelegram();
@@ -70,6 +62,10 @@ public class TelegramRestClient {
     }
 
     private RestClient getRestClient() {
+        if (botToken.equals("none")) {
+            log.error("Telegram Bot token is mandatory, set application argument '--botToken={TOKEN}'");
+            throw new ApplicationException("Telegram bot configuration error");
+        }
         return RestClient.builder()
                 .requestFactory(new HttpComponentsClientHttpRequestFactory())
                 .baseUrl(integrationPropertyFileConfig.getTelegram().getUrl())

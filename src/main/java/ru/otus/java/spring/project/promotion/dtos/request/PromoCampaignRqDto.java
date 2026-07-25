@@ -34,6 +34,7 @@ public class PromoCampaignRqDto {
     private String campaignType;
 
     @FutureOrPresent(message = START_DATE_FIELD + " check-in date must be greater or equal to the current date")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, timezone = "UTC", pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startDate;
 
     private List<CampaignHotelParameterRqDto> hotelParameters = new ArrayList<>();

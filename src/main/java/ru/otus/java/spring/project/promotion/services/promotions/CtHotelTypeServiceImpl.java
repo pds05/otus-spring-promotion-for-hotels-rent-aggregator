@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.otus.java.spring.project.promotion.services.cache.HotelTypeCache;
 import ru.otus.java.spring.project.promotion.domains.promotions.CtHotelType;
 import ru.otus.java.spring.project.promotion.dtos.response.HotelTypeDto;
@@ -22,6 +23,7 @@ public class CtHotelTypeServiceImpl implements CtHotelTypeService {
 
     private final HotelTypeCache hotelTypeCache;
 
+    @Transactional(readOnly = true)
     @Override
     public HotelTypeDto getById(long id) {
         CtHotelType ctHotelType;
@@ -32,6 +34,7 @@ public class CtHotelTypeServiceImpl implements CtHotelTypeService {
         return modelMapper.map(hotelTypeCache.get(id), HotelTypeDto.class);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public HotelTypeDto getByName(String name) {
         CtHotelType ctHotelType = hotelTypeCache.getAll().stream().filter(hotelType -> hotelType.getName().equals(name)).findFirst().orElse(null);
@@ -42,6 +45,7 @@ public class CtHotelTypeServiceImpl implements CtHotelTypeService {
         return modelMapper.map(ctHotelType, HotelTypeDto.class);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<HotelTypeDto> getAll() {
         if (hotelTypeCache.isEmpty()) {
@@ -56,6 +60,7 @@ public class CtHotelTypeServiceImpl implements CtHotelTypeService {
         }.getType());
     }
 
+    @Transactional
     @Override
     public HotelTypeDto save(String name, String description) {
         CtHotelType ctHotelType = new CtHotelType();
@@ -69,6 +74,7 @@ public class CtHotelTypeServiceImpl implements CtHotelTypeService {
         return modelMapper.map(ctHotelType, HotelTypeDto.class);
     }
 
+    @Transactional
     @Override
     public HotelTypeDto update(long id, String name, String description) {
         CtHotelType hotelType = hotelTypeCache.get(id);
@@ -85,6 +91,7 @@ public class CtHotelTypeServiceImpl implements CtHotelTypeService {
         return modelMapper.map(hotelType, HotelTypeDto.class);
     }
 
+    @Transactional
     @Override
     public void delete(long id) {
         ctHotelTypeRepository.deleteById(id);

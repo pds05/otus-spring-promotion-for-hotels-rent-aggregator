@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.otus.java.spring.project.promotion.services.cache.CitiesCache;
 import ru.otus.java.spring.project.promotion.domains.promotions.CtCity;
 import ru.otus.java.spring.project.promotion.dtos.response.CityDto;
@@ -22,6 +23,7 @@ public class CtCitiesServiceImpl implements CtCitiesService {
 
     private final CitiesCache citiesCache;
 
+    @Transactional(readOnly = true)
     @Override
     public CityDto getById(long id) {
         CtCity ctCity;
@@ -32,6 +34,7 @@ public class CtCitiesServiceImpl implements CtCitiesService {
         return modelMapper.map(citiesCache.get(id), CityDto.class);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public CityDto getByTitle(String title) {
         CtCity ctCity = citiesCache.getAll().stream().filter(city -> city.getTitle().equals(title)).findFirst().orElse(null);
@@ -42,12 +45,13 @@ public class CtCitiesServiceImpl implements CtCitiesService {
         return modelMapper.map(ctCity, CityDto.class);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<CityDto> getAll() {
         if (citiesCache.isEmpty()) {
             List<CtCity> cities = ctCitiesRepository.findAll();
             if (cities.isEmpty()) {
-                throw new ResourceNotFoundException("Providers not found");
+                throw new ResourceNotFoundException("Cities not found");
             }
             citiesCache.putAll(cities);
         }
@@ -55,6 +59,7 @@ public class CtCitiesServiceImpl implements CtCitiesService {
         }.getType());
     }
 
+    @Transactional
     @Override
     public CityDto save(String title) {
         CtCity ctCity = new CtCity();
@@ -64,6 +69,7 @@ public class CtCitiesServiceImpl implements CtCitiesService {
         return modelMapper.map(ctCity, CityDto.class);
     }
 
+    @Transactional
     @Override
     public CityDto update(long id, String title) {
         CtCity ctCity = citiesCache.get(id);
@@ -78,6 +84,7 @@ public class CtCitiesServiceImpl implements CtCitiesService {
         return modelMapper.map(ctCity, CityDto.class);
     }
 
+    @Transactional
     @Override
     public void delete(long id) {
         ctCitiesRepository.deleteById(id);

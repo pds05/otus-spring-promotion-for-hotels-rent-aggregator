@@ -28,15 +28,18 @@ public class CampaignHotelParameterRqDto {
     @JsonSetter(nulls = Nulls.SKIP)
     private Long id;
 
+    @JsonSetter(nulls = Nulls.SKIP)
+    private Long campaignId;
+
     @NotBlank(message = CITY_ID_FIELD + " is not valid")
     private Long cityId;
 
     @FutureOrPresent(message = DATE_IN_FIELD + " check-in date must be greater or equal to the current date")
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "UTC")
     private LocalDate dateIn;
 
     @Future(message = DATE_OUT_FIELD + " departure date must be greater to the current date")
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "UTC")
     private LocalDate dateOut;
 
     @Positive

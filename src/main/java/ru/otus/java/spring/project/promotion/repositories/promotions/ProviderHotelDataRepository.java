@@ -1,6 +1,5 @@
 package ru.otus.java.spring.project.promotion.repositories.promotions;
 
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.otus.java.spring.project.promotion.domains.promotions.ProviderHotelData;
@@ -8,11 +7,6 @@ import ru.otus.java.spring.project.promotion.domains.promotions.ProviderHotelDat
 import java.util.List;
 
 public interface ProviderHotelDataRepository extends JpaRepository<ProviderHotelData, Long> {
-
-    void deleteById(long id);
-
-    @EntityGraph(attributePaths = "promoCampaign")
-    List<ProviderHotelData> findByProviderIdAndPromoCampaignId(Long hotelId, Long campaignId);
 
     List<ProviderHotelData> findByPromoCampaignId(Long campaignId);
 
@@ -33,4 +27,5 @@ public interface ProviderHotelDataRepository extends JpaRepository<ProviderHotel
     List<ProviderHotelData> findWithMinPriceAndFood(Long campaignId, String city, List<String> foodTypes);
 
     void deleteByPromoCampaignId(Long campaignId);
+
 }

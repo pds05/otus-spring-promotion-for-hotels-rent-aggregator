@@ -10,12 +10,11 @@ import java.util.Optional;
 
 public interface PromoCampaignRepository extends JpaRepository<PromoCampaign, Long> {
 
-    void deleteById(Long id);
-
     @EntityGraph(attributePaths = {"hotelParameters",
             "hotelParameters.city",
             "hotelParameters.ctHotelTypes",
             "hotelParameters.ctFoodTypes" ,
             "campaignProviders"})
     Optional<PromoCampaign> findFirstByStartDateBeforeAndStatus(LocalDateTime startDate, PromoCampaignStatus status);
+
 }

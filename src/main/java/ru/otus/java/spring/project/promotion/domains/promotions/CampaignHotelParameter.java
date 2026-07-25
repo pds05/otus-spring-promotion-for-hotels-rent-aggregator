@@ -37,7 +37,7 @@ public class CampaignHotelParameter {
     private Integer guests;
 
     @Fetch(FetchMode.SUBSELECT)
-    @ManyToMany(cascade = CascadeType.MERGE)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinTable(name = "campaign_hotel_parameters_ct_hotel_type_rel",
             joinColumns = @JoinColumn(name = "campaign_hotel_parameter_id"),
     inverseJoinColumns = @JoinColumn(name = "ct_hotel_type_id"))
@@ -59,7 +59,7 @@ public class CampaignHotelParameter {
     }
 
     @Fetch(FetchMode.SUBSELECT)
-    @ManyToMany(cascade = CascadeType.MERGE)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinTable(name = "campaign_hotel_parameters_ct_food_type_rel",
             joinColumns = @JoinColumn(name = "campaign_hotel_parameter_id"),
             inverseJoinColumns = @JoinColumn(name = "ct_food_type_id"))
