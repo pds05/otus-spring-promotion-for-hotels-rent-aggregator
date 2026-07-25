@@ -1,16 +1,21 @@
-package ru.otus.java.spring.project.promotion.tasks;
+package ru.otus.java.spring.project.promotion.services.promotions;
 
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.springframework.stereotype.Component;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.otus.java.spring.project.promotion.domains.promotions.CtFoodType;
 import ru.otus.java.spring.project.promotion.domains.promotions.PromoCampaign;
 import ru.otus.java.spring.project.promotion.domains.promotions.ProviderHotelData;
 import ru.otus.java.spring.project.promotion.dtos.response.HotelRoomsDto;
+import ru.otus.java.spring.project.promotion.dtos.response.ProviderHotelDataDto;
 import ru.otus.java.spring.project.promotion.repositories.promotions.ProviderHotelDataRepository;
+import ru.otus.java.spring.project.promotion.tasks.PromoCampaignData;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -18,12 +23,22 @@ import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
-@Component
-public class PromoCampaignDataHandler {
+@Service("providerHotelDataService")
+public class ProviderHotelDataServiceImpl implements ProviderHotelDataService {
 
     private final ProviderHotelDataRepository providerHotelDataRepository;
 
-    public void writeProviderData(PromoCampaignData campaignData) {
+    private final ModelMapper modelMapper;
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<ProviderHotelDataDto> getTop(long campaignId) {
+        return modelMapper.map(providerHotelDataRepository.findByPromoCampaignIdAndIsTopIsTrue(campaignId),
+                new TypeToken<List<ProviderHotelDataDto>>() {}.getType());
+    }
+
+    @Transactional
+    public void save(PromoCampaignData campaignData) {
         var hotelDataList = campaignData.getProviderDataMultiMap().values().stream().flatMap(Collection::stream)
                 .map(providerData -> providerData.getResponseList().stream().<ProviderFlatResponse>mapMulti((hotel, consumer) -> {
                     for (HotelRoomsDto.HotelRoomDto room : hotel.getRooms()) {
@@ -52,9 +67,15 @@ public class PromoCampaignDataHandler {
         providerHotelDataRepository.saveAll(hotelDataList);
     }
 
-    public List<ProviderHotelData> getTargetData(PromoCampaignData campaignData) {
-        PromoCampaign promoCampaign = campaignData.getPromoCampaign();
-        return  promoCampaign.getHotelParameters().stream()
+    @Transactional
+    @Override
+    public void deleteByCampaignId(long campaignId) {
+        providerHotelDataRepository.deleteByPromoCampaignId(campaignId);
+    }
+
+    @Transactional
+    public List<ProviderHotelData> parseTop(PromoCampaign promoCampaign) {
+        List<ProviderHotelData> topList = promoCampaign.getHotelParameters().stream()
                 .map(param -> {
                     List<ProviderHotelData> providerHotelData;
 
@@ -67,7 +88,10 @@ public class PromoCampaignDataHandler {
                     }
 
                     return providerHotelData;
-                }).flatMap(Collection::stream).toList();
+                }).flatMap(Collection::stream)
+                .peek(data -> data.setIsTop(true))
+                .toList();
+        return providerHotelDataRepository.saveAll(topList);
     }
 
     @Getter

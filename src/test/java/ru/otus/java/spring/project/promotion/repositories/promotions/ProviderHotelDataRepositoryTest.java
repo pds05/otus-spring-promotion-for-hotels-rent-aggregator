@@ -17,7 +17,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 public class ProviderHotelDataRepositoryTest {
 
-    public static final long MIGRATED_PROMO_CAMPAIGN_ID = 100L;
+    public static final long PROMO_CAMPAIGN_LOW_COST_WITH_FOOD_ID = 100L;
+
+    public static final long PROMO_CAMPAIGN_LOW_COST = 101L;
 
     @Autowired
     private ProviderHotelDataRepository providerHotelDataRepository;
@@ -25,18 +27,26 @@ public class ProviderHotelDataRepositoryTest {
     @Autowired
     private TestEntityManager entityManager;
 
-    @DisplayName("Должен читать данные предложений по id кампании")
+    @DisplayName("Должен читать топ предложений по id кампании")
     @Test
     void shouldGetDataByCampaignId(){
-        var response = providerHotelDataRepository.findByPromoCampaignId(MIGRATED_PROMO_CAMPAIGN_ID);
+        var with_food = providerHotelDataRepository.findByPromoCampaignIdAndIsTopIsTrue(PROMO_CAMPAIGN_LOW_COST_WITH_FOOD_ID);
 
-        assertThat(response).isNotEmpty();
+        assertThat(with_food).isNotEmpty();
+        assertThat(with_food.size()).isEqualTo(4);
+        assertThat(with_food).noneMatch(data -> data.getFood().equals("Без питания"));
+
+        var low_cost = providerHotelDataRepository.findByPromoCampaignIdAndIsTopIsTrue(PROMO_CAMPAIGN_LOW_COST);
+
+        assertThat(low_cost).isNotEmpty();
+        assertThat(low_cost.size()).isEqualTo(2);
+        assertThat(low_cost).allMatch(data -> data.getFood().equals("Без питания"));
     }
 
     @DisplayName("Должен находить предложения с минимальной стоимостью")
     @Test
     void shouldGetDataByCampaignWithMinPrice(){
-        var hotelWithFood = providerHotelDataRepository.findWithMinPrice(MIGRATED_PROMO_CAMPAIGN_ID, "Москва");
+        var hotelWithFood = providerHotelDataRepository.findWithMinPrice(PROMO_CAMPAIGN_LOW_COST_WITH_FOOD_ID, "Москва");
 
         assertThat(hotelWithFood).isNotEmpty();
         assertThat(hotelWithFood).allMatch(data -> data.getCityName().equals("Москва"));
@@ -45,7 +55,7 @@ public class ProviderHotelDataRepositoryTest {
     @DisplayName("Должен находить предложения с минимальной стоимостью и питанием")
     @Test
     void shouldGetDataByCampaignWithMinPriceAndFood(){
-        var allInclusive = providerHotelDataRepository.findWithMinPriceAndFood(MIGRATED_PROMO_CAMPAIGN_ID, "Москва", List.of("Все включено"));
+        var allInclusive = providerHotelDataRepository.findWithMinPriceAndFood(PROMO_CAMPAIGN_LOW_COST_WITH_FOOD_ID, "Москва", List.of("Все включено"));
 
         assertThat(allInclusive).isNotEmpty();
         assertThat(allInclusive).allMatch(data -> data.getFood().equals("Все включено") && data.getCityName().equals("Москва"));
@@ -56,7 +66,7 @@ public class ProviderHotelDataRepositoryTest {
     @Test
     void shouldSaveData(){
         ProviderHotelData expectedData = new ProviderHotelData();
-        expectedData.setPromoCampaign(entityManager.find(PromoCampaign.class, MIGRATED_PROMO_CAMPAIGN_ID));
+        expectedData.setPromoCampaign(entityManager.find(PromoCampaign.class, PROMO_CAMPAIGN_LOW_COST_WITH_FOOD_ID));
         expectedData.setCityName("Москва");
         expectedData.setProviderId(1L);
         expectedData.setHotelId(10L);
@@ -76,11 +86,11 @@ public class ProviderHotelDataRepositoryTest {
     @DisplayName("Должен удалять данные предложений по id кампании")
     @Test
     void shouldDeleteData(){
-        assertThat(providerHotelDataRepository.findByPromoCampaignId(MIGRATED_PROMO_CAMPAIGN_ID)).isNotEmpty();
+        assertThat(providerHotelDataRepository.findByPromoCampaignId(PROMO_CAMPAIGN_LOW_COST_WITH_FOOD_ID)).isNotEmpty();
 
-        providerHotelDataRepository.deleteByPromoCampaignId(MIGRATED_PROMO_CAMPAIGN_ID);
+        providerHotelDataRepository.deleteByPromoCampaignId(PROMO_CAMPAIGN_LOW_COST_WITH_FOOD_ID);
 
-        assertThat(providerHotelDataRepository.findByPromoCampaignId(MIGRATED_PROMO_CAMPAIGN_ID)).isEmpty();
+        assertThat(providerHotelDataRepository.findByPromoCampaignId(PROMO_CAMPAIGN_LOW_COST_WITH_FOOD_ID)).isEmpty();
     }
 
 }

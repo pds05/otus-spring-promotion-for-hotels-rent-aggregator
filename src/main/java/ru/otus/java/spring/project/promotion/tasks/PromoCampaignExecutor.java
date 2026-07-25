@@ -20,6 +20,7 @@ import ru.otus.java.spring.project.promotion.integrations.ProviderRestClient;
 import ru.otus.java.spring.project.promotion.integrations.TelegramRestClient;
 import ru.otus.java.spring.project.promotion.repositories.promotions.PromoCampaignRepository;
 import ru.otus.java.spring.project.promotion.services.cache.ActiveProviderCache;
+import ru.otus.java.spring.project.promotion.services.promotions.ProviderHotelDataServiceImpl;
 import ru.otus.java.spring.project.promotion.services.providers.ProviderService;
 
 import java.time.LocalDateTime;
@@ -32,7 +33,7 @@ import java.util.*;
 @EnableScheduling
 public class PromoCampaignExecutor {
 
-    private final PromoCampaignDataHandler promoCampaignDataHandler;
+    private final ProviderHotelDataServiceImpl providerHotelDataService;
 
     private final PromoCampaignRepository promoCampaignRepository;
 
@@ -71,9 +72,9 @@ public class PromoCampaignExecutor {
                     doProviderRequest(requestList, provider, campaignData);
                 }
 
-                promoCampaignDataHandler.writeProviderData(campaignData);
+                providerHotelDataService.save(campaignData);
 
-                List<ProviderHotelData> targetHotelData = promoCampaignDataHandler.getTargetData(campaignData);
+                List<ProviderHotelData> targetHotelData = providerHotelDataService.parseTop(promoCampaign);
                 campaignData.addTargetProviderHotel(targetHotelData);
                 log.debug("Target hotel rooms: {}", targetHotelData);
 
@@ -122,7 +123,7 @@ public class PromoCampaignExecutor {
                         telegramRestClient.sendMessage(message);
                     } default -> {
                         campaignData.incError();
-                        campaignData.addErrorMessage("Программная ошибка: не удалось составить сообщение для Telegram");
+                        campaignData.addErrorMessage("Не нашлось сообщения для Telegram");
                         log.warn("Impossible to prepare telegram message, promo campaign type is not defined");
                     }
                 }
@@ -131,7 +132,7 @@ public class PromoCampaignExecutor {
                         Thread.sleep(integrationPropertyFileConfig.getTelegram().getMessageDelay());
                     } catch (InterruptedException e) {
                         campaignData.incError();
-                        campaignData.addErrorMessage("Application error while sending telegram messages");
+                        campaignData.addErrorMessage("Не удалось отправить сообщение в Telegram");
                         log.error("Application error while sending telegram messages", e);
                     }
                 }

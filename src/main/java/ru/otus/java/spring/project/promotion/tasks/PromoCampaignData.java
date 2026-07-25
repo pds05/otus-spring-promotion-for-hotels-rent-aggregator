@@ -1,6 +1,7 @@
 package ru.otus.java.spring.project.promotion.tasks;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.otus.java.spring.project.promotion.domains.promotions.PromoCampaign;
 import ru.otus.java.spring.project.promotion.domains.promotions.ProviderHotelData;
@@ -12,6 +13,7 @@ import java.util.Map;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class PromoCampaignData {
 
     private PromoCampaign promoCampaign;

@@ -6,16 +6,13 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ru.otus.java.spring.project.promotion.dtos.response.*;
 import ru.otus.java.spring.project.promotion.services.cache.CitiesCache;
 import ru.otus.java.spring.project.promotion.services.cache.FoodTypeCache;
 import ru.otus.java.spring.project.promotion.services.cache.HotelTypeCache;
 import ru.otus.java.spring.project.promotion.domains.promotions.*;
 import ru.otus.java.spring.project.promotion.dtos.request.CampaignHotelParameterRqDto;
 import ru.otus.java.spring.project.promotion.dtos.request.PromoCampaignRqDto;
-import ru.otus.java.spring.project.promotion.dtos.response.CampaignHotelParameterDto;
-import ru.otus.java.spring.project.promotion.dtos.response.FoodTypeDto;
-import ru.otus.java.spring.project.promotion.dtos.response.HotelTypeDto;
-import ru.otus.java.spring.project.promotion.dtos.response.PromoCampaignDto;
 import ru.otus.java.spring.project.promotion.enums.PromoCampaignResult;
 import ru.otus.java.spring.project.promotion.enums.PromoCampaignStatus;
 import ru.otus.java.spring.project.promotion.enums.PromoCampaignType;
@@ -56,6 +53,7 @@ public class ModelMapperConfig {
         mappingCtFoodTypeToDto(mapper);
         mappingCampaignHotelParameterToDto(mapper);
         mappingCampaignHotelParameterDtoToDomain(mapper);
+        mappingProviderHotelDataToDto(mapper);
 
         return mapper;
     }
@@ -173,5 +171,19 @@ public class ModelMapperConfig {
                         .map(CampaignHotelParameterRqDto::getHotelTypeIds, CampaignHotelParameter::setCtHotelTypes))
                 .addMappings(mc -> mc.using(foodTypeConverter)
                         .map(CampaignHotelParameterRqDto::getFoodTypeIds, CampaignHotelParameter::setCtFoodTypes));
+    }
+
+    private void mappingProviderHotelDataToDto(ModelMapper mapper) {
+        Converter<Long, String> providerConverter = mc -> providerService.getById(mc.getSource()).getDescription();
+
+        mapper.createTypeMap(ProviderHotelData.class, ProviderHotelDataDto.class)
+                .addMapping(data -> data.getPromoCampaign().getId(), ProviderHotelDataDto::setPromoCampaignId)
+                .addMapping(ProviderHotelData::getCityName, ProviderHotelDataDto::setCity)
+                .addMapping(ProviderHotelData::getHotelName, ProviderHotelDataDto::setHotel)
+                .addMapping(ProviderHotelData::getHotelRoomName, ProviderHotelDataDto::setRoom)
+                .addMapping(ProviderHotelData::getHotelRoomRateName, ProviderHotelDataDto::setRate)
+                .addMapping(ProviderHotelData::getDateCreate, ProviderHotelDataDto::setActualDate)
+                .addMappings(mc -> mc.using(providerConverter)
+                        .map(ProviderHotelData::getProviderId, ProviderHotelDataDto::setProvider));
     }
 }

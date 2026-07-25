@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.*;
 @DataJpaTest
 public class PromoCampaignRepositoryTest {
 
-    public static final long MIGRATED_PROMO_CAMPAIGN_ID = 100L;
+    public static final long PROMO_CAMPAIGN_LOW_COST = 101L;
 
     @Autowired
     private PromoCampaignRepository promoCampaignRepository;
@@ -31,9 +31,9 @@ public class PromoCampaignRepositoryTest {
     @DisplayName("Должен загружать кампанию по id")
     @Test
     void shouldReturnPromoCampaignById() {
-        var optionalPromoCampaign = promoCampaignRepository.findById(MIGRATED_PROMO_CAMPAIGN_ID);
+        var optionalPromoCampaign = promoCampaignRepository.findById(PROMO_CAMPAIGN_LOW_COST);
 
-        var expectedPromoCampaign = entityManager.find(PromoCampaign.class, MIGRATED_PROMO_CAMPAIGN_ID);
+        var expectedPromoCampaign = entityManager.find(PromoCampaign.class, PROMO_CAMPAIGN_LOW_COST);
 
         assertThat(optionalPromoCampaign).isPresent()
                 .get()
@@ -94,7 +94,7 @@ public class PromoCampaignRepositoryTest {
     @DisplayName("Должен обновлять параметры кампании")
     @Test
     void shouldUpdatePromoCampaign() {
-        var optionalPromoCampaign = entityManager.find(PromoCampaign.class, MIGRATED_PROMO_CAMPAIGN_ID);
+        var optionalPromoCampaign = entityManager.find(PromoCampaign.class, PROMO_CAMPAIGN_LOW_COST);
         optionalPromoCampaign.setStartDate(LocalDateTime.of(2026, 12, 1, 12,0));
         optionalPromoCampaign.removeCampaignProvider(entityManager.find(CampaignProvider.class, 2L));
         optionalPromoCampaign.removeHotelParameter(optionalPromoCampaign.getHotelParameters().stream().toList().get(0));
@@ -117,7 +117,7 @@ public class PromoCampaignRepositoryTest {
     @DisplayName("Должен удалять кампанию по id")
     @Test
     void shouldDeletePromoCampaign() {
-        var optionalPromoCampaign = entityManager.find(PromoCampaign.class, MIGRATED_PROMO_CAMPAIGN_ID);
+        var optionalPromoCampaign = entityManager.find(PromoCampaign.class, PROMO_CAMPAIGN_LOW_COST);
 
         promoCampaignRepository.deleteById(optionalPromoCampaign.getId());
 

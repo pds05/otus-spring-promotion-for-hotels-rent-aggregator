@@ -16,6 +16,7 @@ create table if not exists provider_hotel_data
     date_in              timestamp,
     date_out             timestamp,
     date_create          timestamp default now(),
+    is_top          boolean   default false,
 
     CONSTRAINT fk_promo_campaigns_provider_hotel_data FOREIGN KEY (campaign_id) REFERENCES promo_campaigns(id) ON DELETE CASCADE ON UPDATE CASCADE
 );

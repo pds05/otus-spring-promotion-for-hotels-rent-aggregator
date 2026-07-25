@@ -10,6 +10,8 @@ public interface ProviderHotelDataRepository extends JpaRepository<ProviderHotel
 
     List<ProviderHotelData> findByPromoCampaignId(Long campaignId);
 
+    List<ProviderHotelData> findByPromoCampaignIdAndIsTopIsTrue(Long campaignId);
+
     @Query(value = "with min_price as (" +
             "select min(price) m_price from provider_hotel_data " +
             "where campaign_id = :campaignId and city_name = :city) " +

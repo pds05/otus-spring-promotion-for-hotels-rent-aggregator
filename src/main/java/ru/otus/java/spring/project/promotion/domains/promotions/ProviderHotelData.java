@@ -76,4 +76,7 @@ public class ProviderHotelData {
     @Column(name = "date_create")
     private LocalDateTime dateCreate;
 
+    @Column(name = "is_top")
+    private Boolean isTop;
+
 }

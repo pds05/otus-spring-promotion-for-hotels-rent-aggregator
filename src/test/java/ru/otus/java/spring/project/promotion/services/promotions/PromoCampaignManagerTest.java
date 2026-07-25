@@ -37,10 +37,10 @@ import java.util.List;
 @EnableAutoConfiguration(exclude = WebMvcAutoConfiguration.class)
 public class PromoCampaignManagerTest {
 
-    public static final long MIGRATED_PROMO_CAMPAIGN_ID = 100L;
+    public static final long PROMO_CAMPAIGN_LOW_COST = 101L;
 
     @Autowired
-    private PromoCampaignManager promoCampaignService;
+    private PromoCampaignService promoCampaignService;
 
     @MockitoBean
     private ProviderServiceImpl providerService;
@@ -105,7 +105,7 @@ public class PromoCampaignManagerTest {
     @Test
     @DisplayName("Должен запускать промо-кампанию")
     void shouldStartPromoCampaign() {
-        var created = promoCampaignService.get(MIGRATED_PROMO_CAMPAIGN_ID);
+        var created = promoCampaignService.get(PROMO_CAMPAIGN_LOW_COST);
 
         var started = promoCampaignService.start(created.getId());
 
@@ -119,7 +119,7 @@ public class PromoCampaignManagerTest {
     @Test
     @DisplayName("Должен возвращать промо-кампании по Id")
     void shouldReturnPromoCampaignById() {
-        var expected = promoCampaignService.get(MIGRATED_PROMO_CAMPAIGN_ID);
+        var expected = promoCampaignService.get(PROMO_CAMPAIGN_LOW_COST);
 
         assertThat(expected.getId()).isNotNull();
         assertThat(expected.getTitle()).isEqualTo("Кампания по низкой стоимости");
@@ -135,7 +135,7 @@ public class PromoCampaignManagerTest {
     @Test
     @DisplayName("Должен останавливать промо-кампанию в ожидании выполнения")
     void shouldStopPromoCampaign() {
-        var created = promoCampaignService.get(MIGRATED_PROMO_CAMPAIGN_ID);
+        var created = promoCampaignService.get(PROMO_CAMPAIGN_LOW_COST);
 
         promoCampaignService.start(created.getId());
         var stopped = promoCampaignService.stop(created.getId());
@@ -152,7 +152,7 @@ public class PromoCampaignManagerTest {
     @Test
     @DisplayName("Должен менять статус и успешно останавливать кампанию")
     void shouldChangeStatusAndStopNormally() {
-        var created = promoCampaignService.get(MIGRATED_PROMO_CAMPAIGN_ID);
+        var created = promoCampaignService.get(PROMO_CAMPAIGN_LOW_COST);
         var working = promoCampaignService.changeStatus(created.getId(), PromoCampaignStatus.IN_PROGRESS, null);
 
         assertThat(working).isNotNull().matches( campaign -> campaign.getId() > 0 )
@@ -175,7 +175,7 @@ public class PromoCampaignManagerTest {
     @Test
     @DisplayName("Должен прерывать промо-кампанию по ошибке")
     void shouldAbortPromoCampaign() {
-        var created = promoCampaignService.get(MIGRATED_PROMO_CAMPAIGN_ID);
+        var created = promoCampaignService.get(PROMO_CAMPAIGN_LOW_COST);
 
         promoCampaignService.start(created.getId());
         var aborted = promoCampaignService.abort(created.getId(), "Провайдер не доступен");
@@ -192,7 +192,7 @@ public class PromoCampaignManagerTest {
     @Transactional
     @Test
     void shouldDeletePromoCampaign() {
-        var expected = promoCampaignService.get(MIGRATED_PROMO_CAMPAIGN_ID);
+        var expected = promoCampaignService.get(PROMO_CAMPAIGN_LOW_COST);
         promoCampaignService.delete(expected.getId());
 
         assertThrows(ResourceNotFoundException.class, () -> promoCampaignService.get(expected.getId()));
