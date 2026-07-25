@@ -59,6 +59,6 @@ public class CampaignHotelParameterRestController {
     @DeleteMapping("/api/v1/campaign_hotel_parameter")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCampaignHotelParameterByCampaignId(@RequestParam @Positive Long campaignId) {
-        campaignHotelParameterService.getAllByCampaignId(campaignId);
+        campaignHotelParameterService.deleteByCampaignId(campaignId);
     }
 }
