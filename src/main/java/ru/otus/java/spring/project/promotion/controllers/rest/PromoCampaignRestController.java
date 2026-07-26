@@ -32,7 +32,7 @@ public class PromoCampaignRestController {
     @DeleteMapping("/api/v1/promo_campaign/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePromoCampaign(@PathVariable Long id) {
-        promoCampaignService.delete(id);
+        promoCampaignService.deleteById(id);
     }
 
     @PostMapping(value = "/api/v1/promo_campaign",

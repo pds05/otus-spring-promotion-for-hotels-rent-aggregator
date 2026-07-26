@@ -56,6 +56,6 @@ public class FoodTypeRestController {
     @DeleteMapping("/api/v1/food_type/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteFoodType(@PathVariable Long id) {
-        ctFoodTypeService.delete(id);
+        ctFoodTypeService.deleteById(id);
     }
 }

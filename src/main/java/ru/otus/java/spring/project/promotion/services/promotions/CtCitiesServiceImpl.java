@@ -86,7 +86,7 @@ public class CtCitiesServiceImpl implements CtCitiesService {
 
     @Transactional
     @Override
-    public void delete(long id) {
+    public void deleteById(long id) {
         ctCitiesRepository.deleteById(id);
     }
 }

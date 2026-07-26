@@ -56,6 +56,6 @@ public class HotelTypeRestController {
     @DeleteMapping("/api/v1/hotel_type/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteHotelType(@PathVariable Long id) {
-        ctHotelTypeService.delete(id);
+        ctHotelTypeService.deleteById(id);
     }
 }

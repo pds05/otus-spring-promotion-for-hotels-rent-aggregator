@@ -11,21 +11,21 @@ public interface PromoCampaignService {
 
     List<PromoCampaignDto> getAll();
 
-    PromoCampaignDto get(long promoCampaignId);
+    PromoCampaignDto get(long id);
 
     PromoCampaignDto save(PromoCampaignRqDto request);
 
-    PromoCampaignDto start(long promoCampaignId);
+    PromoCampaignDto start(long id);
 
-    PromoCampaignDto stop(long promoCampaignId);
+    PromoCampaignDto stop(long id);
 
-    PromoCampaignDto abort(long promoCampaignId, String reason);
+    PromoCampaignDto abort(long id, String reason);
 
-    PromoCampaignDto changeStatus(long promoCampaignId, PromoCampaignStatus status, PromoCampaignResult result);
+    PromoCampaignDto changeStatus(long id, PromoCampaignStatus status, PromoCampaignResult result);
 
-    PromoCampaignStatus getStatus(long promoCampaignId);
+    PromoCampaignStatus getStatus(long id);
 
-    PromoCampaignResult getResult(long promoCampaignId);
+    PromoCampaignResult getResult(long id);
 
-    void delete(long promoCampaignId);
+    void deleteById(long id);
 }

@@ -54,6 +54,6 @@ public class CityRestController {
     @DeleteMapping("/api/v1/city/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCity(@PathVariable Long id) {
-        ctCitiesService.delete(id);
+        ctCitiesService.deleteById(id);
     }
 }

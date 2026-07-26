@@ -93,7 +93,7 @@ public class CtHotelTypeServiceImpl implements CtHotelTypeService {
 
     @Transactional
     @Override
-    public void delete(long id) {
+    public void deleteById(long id) {
         ctHotelTypeRepository.deleteById(id);
     }
 }

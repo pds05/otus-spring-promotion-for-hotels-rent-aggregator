@@ -7,14 +7,14 @@ import java.util.List;
 
 public interface CampaignHotelParameterService {
 
-    List<CampaignHotelParameterDto> getAllByCampaignId(Long campaignId);
+    List<CampaignHotelParameterDto> getAllByCampaignId(long campaignId);
 
-    CampaignHotelParameterDto getById(Long id);
+    CampaignHotelParameterDto getById(long id);
 
     CampaignHotelParameterDto save(CampaignHotelParameterRqDto request);
 
-    void deleteByCampaignId(Long campaignId);
+    void deleteByCampaignId(long campaignId);
 
-    void deleteById(Long id);
+    void deleteById(long id);
 
 }

@@ -16,5 +16,5 @@ public interface CtHotelTypeService {
 
     HotelTypeDto update(long id, String name, String description);
 
-    void delete(long id);
+    void deleteById(long id);
 }

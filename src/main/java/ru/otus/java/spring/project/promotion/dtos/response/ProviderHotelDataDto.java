@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Setter
 public class ProviderHotelDataDto {
 
-    private String promoCampaignId;
+    private Long promoCampaignId;
 
     private String provider;
 

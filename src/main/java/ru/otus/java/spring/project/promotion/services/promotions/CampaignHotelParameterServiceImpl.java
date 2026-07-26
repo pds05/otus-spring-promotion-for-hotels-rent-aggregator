@@ -23,14 +23,14 @@ public class CampaignHotelParameterServiceImpl implements CampaignHotelParameter
 
     @Transactional(readOnly = true)
     @Override
-    public List<CampaignHotelParameterDto> getAllByCampaignId(Long campaignId) {
+    public List<CampaignHotelParameterDto> getAllByCampaignId(long campaignId) {
         List<CampaignHotelParameter> campaignHotelParameters = campaignHotelParameterRepository.findByCampaignId(campaignId);
         return modelMapper.map(campaignHotelParameters, new TypeToken<List<CampaignHotelParameterDto>>() {}.getType());
     }
 
     @Transactional(readOnly = true)
     @Override
-    public CampaignHotelParameterDto getById(Long id) {
+    public CampaignHotelParameterDto getById(long id) {
         CampaignHotelParameter campaignHotelParameter = campaignHotelParameterRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Campaign hotel parameter with id " + id + " not found"));
         return modelMapper.map(campaignHotelParameter, CampaignHotelParameterDto.class);
     }
@@ -53,13 +53,13 @@ public class CampaignHotelParameterServiceImpl implements CampaignHotelParameter
 
     @Transactional
     @Override
-    public void deleteByCampaignId(Long campaignId) {
+    public void deleteByCampaignId(long campaignId) {
         campaignHotelParameterRepository.deleteByCampaignId(campaignId);
     }
 
     @Transactional
     @Override
-    public void deleteById(Long id) {
+    public void deleteById(long id) {
         campaignHotelParameterRepository.deleteById(id);
     }
 }

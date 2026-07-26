@@ -8,7 +8,7 @@ create table if not exists ct_cities
 create table if not exists ct_hotel_types
 (
     id          serial primary key,
-    name       varchar(50) not null UNIQUE,
+    name        varchar(50) not null UNIQUE,
     description varchar(255)
 );
 

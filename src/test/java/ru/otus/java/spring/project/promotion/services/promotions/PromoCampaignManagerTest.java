@@ -193,7 +193,7 @@ public class PromoCampaignManagerTest {
     @Test
     void shouldDeletePromoCampaign() {
         var expected = promoCampaignService.get(PROMO_CAMPAIGN_LOW_COST);
-        promoCampaignService.delete(expected.getId());
+        promoCampaignService.deleteById(expected.getId());
 
         assertThrows(ResourceNotFoundException.class, () -> promoCampaignService.get(expected.getId()));
     }

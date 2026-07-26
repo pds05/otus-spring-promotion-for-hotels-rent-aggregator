@@ -174,7 +174,10 @@ public class ModelMapperConfig {
     }
 
     private void mappingProviderHotelDataToDto(ModelMapper mapper) {
-        Converter<Long, String> providerConverter = mc -> providerService.getById(mc.getSource()).getDescription();
+        Converter<Long, String> providerConverter = mc ->  {
+            var provider = providerService.getById(mc.getSource());
+            return provider != null ? provider.getDescription() : null;
+        };
 
         mapper.createTypeMap(ProviderHotelData.class, ProviderHotelDataDto.class)
                 .addMapping(data -> data.getPromoCampaign().getId(), ProviderHotelDataDto::setPromoCampaignId)

@@ -39,7 +39,7 @@ public class CampaignHotelParameterRestController {
         return campaignHotelParameterService.save(campaignHotelParameter);
     }
 
-    @PostMapping(value = "/api/v1/campaign_hotel_parameter/{id}",
+    @PutMapping(value = "/api/v1/campaign_hotel_parameter/{id}",
             consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.OK)

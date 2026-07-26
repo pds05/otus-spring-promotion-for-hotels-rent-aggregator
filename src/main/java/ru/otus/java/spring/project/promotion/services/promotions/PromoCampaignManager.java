@@ -154,7 +154,7 @@ public class PromoCampaignManager implements PromoCampaignService {
 
     @Transactional
     @Override
-    public void delete(long promoCampaignId) {
+    public void deleteById(long promoCampaignId) {
         promoCampaignRepository.deleteById(promoCampaignId);
     }
 }

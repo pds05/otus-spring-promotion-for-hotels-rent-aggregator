@@ -93,7 +93,7 @@ public class CtFoodTypeServiceImpl implements CtFoodTypeService {
 
     @Transactional
     @Override
-    public void delete(long id) {
+    public void deleteById(long id) {
         ctFoodTypeRepository.deleteById(id);
     }
 }

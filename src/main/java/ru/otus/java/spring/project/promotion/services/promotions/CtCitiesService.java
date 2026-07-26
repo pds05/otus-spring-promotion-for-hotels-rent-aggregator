@@ -16,6 +16,6 @@ public interface CtCitiesService {
 
     CityDto update(long id, String title);
 
-    void delete(long id);
+    void deleteById(long id);
 
 }
