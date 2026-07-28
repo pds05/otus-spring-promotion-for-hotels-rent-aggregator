@@ -53,6 +53,7 @@
         .secondary_params {
             margin-top: 10px;
         }
+
         .buttons {
             margin-top: 10px;
         }
@@ -116,10 +117,78 @@
     </script>
 
     <script>
-        function saveCampaign(id) {
-            fetch("/ha_promotion/api/v1/promo_campaign/" + id,
-                {method: 'POST'})
-            window.location.href = '/ha_promotion/promo_campaign'
+        function saveCampaign() {
+            let form = document.getElementById("campaign_form")
+            let formData = new FormData(form);
+
+            for (let val of formData.entries()) {
+                console.log(val[0] + ', ' + val[1]);
+            }
+
+            form.addEventListener('submit', (event) => {
+                event.preventDefault();
+            })
+            let jsonData = serializeFormDataToJson(formData)
+            fetch("/ha_promotion/api/v1/promo_campaign", {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: jsonData
+            })
+                .then(resp => resp.json())
+                .then(json => window.location.href = '/ha_promotion/promo_campaign/info?id=' + json.id)
+        }
+    </script>
+
+    <script>
+        function serializeFormDataToJson(formData) {
+            const jsonObject = {};
+            const hotelParametersArr = [];
+            let hotelParametersKeys = ['cityId', 'dateIn', 'dateOut', 'guests', 'hotelTypeIds', 'foodTypeIds'];
+            formData.forEach((value, key) => {
+                if (hotelParametersKeys.includes(key)) {
+                    hotelParametersArr.push({key, value})
+                } else if (Reflect.has(jsonObject, key)) {
+                    if (!Array.isArray(jsonObject[key])) {
+                        jsonObject[key] = [jsonObject[key]];
+                    }
+                    jsonObject[key].push(value)
+                } else {
+                    jsonObject[key] = value;
+                }
+            })
+            let preparedParams = prepareHotelParameters(hotelParametersArr)
+            let mainParamsJson = JSON.stringify(jsonObject);
+            let resultJson;
+
+            if (preparedParams !== null) {
+                let paramsJson = JSON.stringify(preparedParams)
+                resultJson = mainParamsJson.substring(0, mainParamsJson.length - 1) + ',"hotelParameters":[' + paramsJson + ']}'
+            } else {
+                resultJson = mainParamsJson;
+            }
+            return resultJson;
+        }
+    </script>
+
+    <script>
+        function prepareHotelParameters(parameters) {
+            const result = {}
+            parameters.forEach(function (value, key, array) {
+                let attr = value.key
+                let attrValue = value.value
+                if (Reflect.has(result, attr)) {
+                    if (!Array.isArray(result[attr])) {
+                        result[attr] = [result[attr]];
+                    }
+                    result[attr].push(attrValue);
+                } else {
+                    result[attr] = attrValue;
+                }
+            })
+            return result;
         }
     </script>
 
@@ -190,70 +259,73 @@
                     </div>
                 </div>
             </fieldset>
-            <div id="secondary_params_div" class="secondary_params">
-                <fieldset id="secondary_param_fieldset" class="form-group border p-3 bg-light">
-                    <legend class="w-auto fs-5 fw-bold text-nowrap text-primary">Дополнительные параметры:</legend>
-                    <div id="secondary_param_set">
+            <fieldset id="secondary_param_fieldset" class="form-group border p-3 bg-light">
+                <legend class="w-auto fs-5 fw-bold text-nowrap text-primary">Дополнительные параметры:</legend>
+                <div id="secondary_param_set">
+                    <div>
+                        <label for="city_select" class="form-label fw-bold fs-6 text-secondary">Город</label>
+                        <select id="city_select" class="form-select" name="cityId">
+                            <option th:each="city: ${cities}"
+                                    th:id="${'city_select_option__' + city.id}"
+                                    th:value="${city.id}"
+                                    th:text="${city.title}">Город
+                            </option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="date_in_input" class="form-label text-nowrap fw-bold fs-6 text-secondary">Дата
+                            въезда</label>
+                        <input type="date" id="date_in_input" class="form-control" name="dateIn">
+                    </div>
+                    <div>
+                        <label for="date_out_input" class="form-label text-nowrap fw-bold fs-6 text-secondary">Дата
+                            выезда</label>
+                        <input type="date" id="date_out_input" class="form-control" name="dateOut">
+                    </div>
+                    <div>
                         <div>
-                            <label for="city_select" class="form-label fw-bold fs-6 text-secondary">Город</label>
-                            <select id="city_select" class="form-select" name="cityId">
-                                <option th:each="city: ${cities}"
-                                        th:id="${'city_select_option__' + city.id}"
-                                        th:value="${city.id}"
-                                        th:text="${city.title}">Город
-                                </option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="date_in_input" class="form-label text-nowrap fw-bold fs-6 text-secondary">Дата
-                                въезда</label>
-                            <input type="date" id="date_in_input" class="form-control">
-                        </div>
-                        <div>
-                            <label for="date_out_input" class="form-label text-nowrap fw-bold fs-6 text-secondary">Дата
-                                выезда</label>
-                            <input type="date" id="date_out_input" class="form-control">
-                        </div>
-                        <div>
-                            <div>
-                                <label for="campaign_guests_input"
-                                       class="form-label text-nowrap fw-bold fs-6 text-secondary">Количество
-                                    гостей</label>
-                                <input id="campaign_guests_input" class="form-control" name="guests"
-                                       value="Количество гостей">
-                            </div>
-                        </div>
-                        <div>
-                            <label for="hotel_type_select" class="form-label text-nowrap fw-bold fs-6 text-secondary">Тип
-                                гостиницы</label>
-                            <select id="hotel_type_select" class="form-select" name="hotelTypeIds" multiple="multiple">
-                                <option th:each="hotelType : ${hotelTypes}"
-                                        th:id="${'hotel_type_select_option__' + hotelType.id}"
-                                        th:value="${hotelType.id}"
-                                        th:text="${hotelType.type}">Тип отеля
-                                </option>
-                            </select>
-                        </div>
-                        <div>
-                            <div class="row ms-2">
-                                <label for="food_type_select"
-                                       class="form-check-label text-nowrap fw-bold fs-6 text-secondary">Тип питания</label>
-                                <input type="checkbox" id="food_type_select" class="form-check-input-sm" name="foodTypeIds"
-                                       multiple="multiple"
-                                       th:each="foodType : ${foodTypes}"
-                                       th:id="${'food_type_select_option__' + foodType.id}"
-                                       th:value="${foodType.id}"
-                                       th:text="${foodType.type}"/>Тип питания
-                            </div>
+                            <label for="campaign_guests_input"
+                                   class="form-label text-nowrap fw-bold fs-6 text-secondary">Количество
+                                гостей</label>
+                            <input id="campaign_guests_input" class="form-control" name="guests"
+                                   value="2">
                         </div>
                     </div>
-                </fieldset>
-            </div>
+                    <div>
+                        <label for="hotel_type_select" class="form-label text-nowrap fw-bold fs-6 text-secondary">Тип
+                            гостиницы</label>
+                        <select id="hotel_type_select" class="form-select" name="hotelTypeIds" multiple="multiple">
+                            <option th:each="hotelType : ${hotelTypes}"
+                                    th:id="${'hotel_type_select_option__' + hotelType.id}"
+                                    th:value="${hotelType.id}"
+                                    th:text="${hotelType.type}">Тип отеля
+                            </option>
+                        </select>
+                    </div>
+                    <div>
+                        <div class="row ms-2">
+                            <label for="food_type_select"
+                                   class="form-check-label text-nowrap fw-bold fs-6 text-secondary">Тип
+                                питания</label>
+                            <input type="checkbox" id="food_type_select" class="form-check-input-sm"
+                                   name="foodTypeIds"
+                                   multiple="multiple"
+                                   th:each="foodType : ${foodTypes}"
+                                   th:id="${'food_type_select_option__' + foodType.id}"
+                                   th:value="${foodType.id}"
+                                   th:text="${foodType.type}"/>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            <!--            <div id="secondary_params_div" class="secondary_params">-->
+            <!--                -->
+            <!--            </div>-->
             <div class="buttons">
                 <button type="button" id="save-btn" class="btn btn-primary btn-sm" onclick="saveCampaign()">
                     Сохранить
                 </button>
-                <button type="button" id="update-btn" class="btn btn-primary btn-sm" onclick="saveCampaign()">
+                <button type="button" id="update-btn" class="btn btn-primary btn-sm" onclick="updateCampaign()">
                     Обновить
                 </button>
                 <button type="button" class="btn btn-secondary btn-sm" disabled onclick="addSecondaryParameters()">

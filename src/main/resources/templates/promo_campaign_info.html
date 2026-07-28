@@ -52,7 +52,10 @@
         function stopCampaign(id) {
             fetch("/ha_promotion/api/v1/promo_campaign/stop/" + id,
                 {method: 'PUT'})
-            getFetchData(id)
+                .then(resp => resp.json()
+                    .then(json => {getFetchData(id)
+                        document.getElementById("start_button").hidden = false
+                    }))
         }
     </script>
 
@@ -61,6 +64,12 @@
             fetch("/ha_promotion/api/v1/promo_campaign/" + id,
                 {method: 'DELETE'})
             window.location.href='/ha_promotion/promo_campaign'
+        }
+    </script>
+
+    <script>
+        function updateCampaign(id){
+            window.location.href='/ha_promotion/promo_campaign/config?id=' + id
         }
     </script>
 
@@ -78,6 +87,7 @@
                         searching: false,
                         paging: false,
                         info: false,
+                        hideEmptyCols: true,
                         dom: 'Bfrtip',
                         layout: {
                             topStart: 'buttons',
@@ -111,9 +121,23 @@
                                         return '<button id="start_btn" onclick="startCampaign(' + row.id + ')">Запустить</button>'
                                     } else if (row.status === 'Запущена') {
                                         return '<button id="stop_btn" onclick="stopCampaign(' + row.id + ')">Остановить</button>'
-                                    } else {
-                                        return '<button id="delete_btn" onclick="deleteCampaign(' + row.id + ')">Удалить</button>'
-                                    }
+                                    } else return ''
+                                }
+                            },
+                            {
+                                data: null,
+                                defaultContent: '',
+                                render: function (data, type, row) {
+                                    if (row.status === 'Создана' || row.status === 'Остановлена') {
+                                        return '<button id="update_btn" onclick="updateCampaign(' + row.id + ')">Изменить</button>'
+                                    } else return null
+                                }
+                            },
+                            {
+                                data: null,
+                                defaultContent: '',
+                                render: function (data, type, row) {
+                                    return '<button id="delete_btn" onclick="deleteCampaign(' + row.id + ')">Удалить</button>'
                                 }
                             }
                         ],
@@ -198,6 +222,8 @@
             <th>Состояние</th>
             <th>Результат</th>
             <th>Подробности</th>
+            <th></th>
+            <th></th>
             <th></th>
         </tr>
         </thead>
