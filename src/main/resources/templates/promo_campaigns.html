@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:td="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="initial-scale=1,
+        maximum-scale=1, user-scalable=0"
+          name="viewport"/>
+
+    <meta name="viewport"
+          content="width=device-width"/>
+
+    <title>Promotion Hotel Aggregator</title>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+
+        h3 {
+            padding-top: 10px;
+            margin-top: 20px;
+            font-size: 25px;
+        }
+        .logo-div {
+            width: 100vw;
+            top: 10px;
+            left: 35px;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            fetch('/ha_promotion/api/v1/promo_campaign')
+                .then(resp => resp.json())
+                .then(json => {
+                    $(document).ready(
+                        function () {
+                            $('#campaignsTable').DataTable({
+                                responsive: true,
+                                scrolling: true,
+                                searching: false,
+                                paging: false,
+                                info: false,
+                                data: json,
+                                dom: 'Bfrtip',
+                                layout: {
+                                    topStart: 'buttons',
+                                },
+                                columns: [
+                                    {
+                                        data: 'id',
+                                        width: "5%"
+                                    },
+
+                                    {
+                                        data: 'title',
+                                        width: '30%'
+                                    },
+                                    {
+                                        data: 'campaignType',
+                                        width: '25%'
+                                    },
+                                    {
+                                        data: 'startDate',
+                                        width: '20%'
+                                    },
+                                    {
+                                        data: 'status',
+                                        width: '10%'
+                                    },
+                                    {
+                                        data: null,
+                                        width: '10%',
+                                        render: function (data, type, row) {
+                                            let url = '/ha_promotion/promo_campaign/info?id=' + row.id;
+                                            return '<a class="btn-detail" href="' + url + '">Открыть</a>'
+                                        }
+                                    }
+                                ],
+
+                                buttons: [
+                                    {
+                                        text: "Новая кампания",
+                                        action: function () {
+                                            window.location.href = '/ha_promotion/promo_campaign/config'
+                                        }
+                                    }
+                                ]
+                            })
+                        })
+                } )
+        });
+    </script>
+</head>
+
+<body>
+<div class="logo-div">
+    <a th:href="@{promo_campaign}"><img src="logo.png" alt="Логотип сервиса"></a>
+</div>
+<h3>Промо-кампании</h3>
+<table id="campaignsTable" class="display">
+    <thead>
+    <tr>
+        <th>Номер</th>
+        <th>Название</th>
+        <th>Тип кампании</th>
+        <th>Время запуска</th>
+        <th>Состояние</th>
+        <th>Параметры</th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+</body>
+</html>

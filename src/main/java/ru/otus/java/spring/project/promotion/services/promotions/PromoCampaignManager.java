@@ -94,12 +94,11 @@ public class PromoCampaignManager implements PromoCampaignService {
         switch (status) {
             case READY: {
                 promoCampaign.setStatus(PromoCampaignStatus.IDLE);
-                promoCampaign.setResult(PromoCampaignResult.INTERRUPTED);
             }
             break;
             case IN_PROGRESS: {
                 promoCampaign.setStatus(PromoCampaignStatus.COMPLETED);
-                promoCampaign.setResult(PromoCampaignResult.OK);
+                promoCampaign.setResult(PromoCampaignResult.INTERRUPTED);
             }
             break;
             default: {

@@ -2,6 +2,7 @@ package ru.otus.java.spring.project.promotion.dtos.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import lombok.*;
 
 import java.time.LocalDateTime;

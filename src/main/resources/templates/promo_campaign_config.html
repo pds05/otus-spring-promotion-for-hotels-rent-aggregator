@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:td="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Promotion Hotel Aggregator</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+
+    <style>
+        body {
+            padding: 50px;
+        }
+
+        label {
+            display: inline-block;
+            width: 100px;
+        }
+
+        input:read-only {
+            background: lightgray;
+        }
+
+        h3 {
+            padding-top: 10px;
+            margin-top: 20px;
+            font-size: 25px;
+        }
+
+        .row {
+            margin-top: 20px;
+        }
+
+        .form-group {
+            border: 1px solid #eee;
+            padding: 20px;
+            display: inline-block;
+        }
+
+        .logo-div {
+            width: 100vw;
+            top: 10px;
+            left: 35px;
+        }
+
+        .primary_params {
+            margin-top: 10px;
+        }
+
+        .secondary_params {
+            margin-top: 10px;
+        }
+        .buttons {
+            margin-top: 10px;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            const params = new URLSearchParams(document.location.search)
+            const campaignId = params.get("id")
+            if (campaignId != null) {
+                fetch('/ha_promotion/api/v1/promo_campaign/' + campaignId)
+                    .then(response => response.json())
+                    .then(json => fillCampaignForm(json))
+                document.getElementById("save-btn").hidden = true
+            } else {
+                document.getElementById("campaign_id_div").hidden = true
+                document.getElementById("update-btn").hidden = true
+            }
+        })
+    </script>
+
+    <script th:inline="javascript" type="text/javascript">
+        // ....
+
+        var providers = /*[[${activeProviders}]]*/ [];
+
+        function setSelectedProviders(providersJson) {
+            providersJson.forEach(provider => {
+                if (providers.find(a => a.id === provider.id)) {
+                    let option = document.getElementById("provider_select_option_" + provider.id);
+                    option.selected = true
+                }
+            })
+        }
+    </script>
+
+    <script>
+        function setSelectedCampaignType(campaignTypeDto) {
+            Array.from(campaign_types_select.options)
+                .filter(option => option.text === campaignTypeDto)
+                .forEach(option => option.selected = true)
+        }
+    </script>
+
+    <script>
+        function fillCampaignForm(campaign) {
+            let campaignId = document.getElementById("campaign_id_input")
+            campaignId.setAttribute("value", campaign.id)
+
+            let campaignTitle = document.getElementById("campaign_title_input")
+            campaignTitle.setAttribute("value", campaign.title)
+
+            let startDate = document.getElementById("start_date_input")
+            startDate.setAttribute("value", campaign.startDate)
+
+            setSelectedCampaignType(campaign.campaignType);
+            setSelectedProviders(campaign.providers);
+
+            document.getElementById("hidden_book_id_input").value = campaign.id
+        }
+    </script>
+
+    <script>
+        function saveCampaign(id) {
+            fetch("/ha_promotion/api/v1/promo_campaign/" + id,
+                {method: 'POST'})
+            window.location.href = '/ha_promotion/promo_campaign'
+        }
+    </script>
+
+    <script>
+        function updateCampaign(id) {
+            fetch("/ha_promotion/api/v1/promo_campaign/" + id,
+                {method: 'PUT'})
+            window.location.href = '/ha_promotion/promo_campaign'
+        }
+    </script>
+
+    <script>
+        function addSecondaryParameters() {
+            let container = document.getElementById("secondary_params_div")
+            let childCount = container.childElementCount + 1;
+            let innerText = container.innerText;
+            let codeWithId = innerText.replace("__", "_" + childCount)
+            container.insertAdjacentHTML("afterend", codeWithId)
+        }
+    </script>
+
+</head>
+<body>
+<div class="logo-div">
+    <a th:href="@{/}"><img src="../logo.png" alt="Логотип сервиса"></a>
+</div>
+
+<div class="form-1-container section-container">
+    <h3 class="fw-bold">Настройки промо-кампании</h3>
+    <div class="col-md-10 form-1-box wow fadeInUp w-50">
+        <form id="campaign_form">
+            <fieldset id="primary_param_fieldset" class="form-group border p-3 w-100 bg-light">
+                <legend class="w-auto fs-5 fw-bold text-primary">Основные параметры:</legend>
+                <div class="primary_params">
+                    <div id="campaign_id_div">
+                        <label for="campaign_id_input" class="form-label fw-bold fs-6 text-secondary">Номер</label>
+                        <input id="campaign_id_input" class="form-control" readonly="readonly" name="id">
+                    </div>
+                    <div>
+                        <label for="campaign_title_input"
+                               class="form-label fw-bold fs-6 text-secondary">Название</label>
+                        <input id="campaign_title_input" class="form-control" name="title" value="Название кампании">
+                    </div>
+                    <div>
+                        <label for="campaign_types_select" class="form-label text-nowrap fw-bold fs-6 text-secondary">Тип
+                            кампании</label>
+                        <select id="campaign_types_select" class="form-select" name="campaignType">
+                            <option th:each="campaignType : ${campaignTypes}"
+                                    th:value="${campaignType.name()}"
+                                    th:text="${campaignType.getDescription()}">
+                            </option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="providers_select" class="form-label fw-bold fs-6 text-secondary">Сервисы</label>
+                        <select id="providers_select" class="form-select" name="providerIds" multiple="multiple">
+                            <option th:each="provider : ${activeProviders}"
+                                    th:id="${'provider_select_option_' + provider.id}"
+                                    th:value="${provider.id}"
+                                    th:text="${provider.name}">Сервис
+                            </option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="start_date_input" class="form-label text-nowrap fw-bold fs-6 text-secondary">Время
+                            запуска</label>
+                        <input type="datetime-local" id="start_date_input" class="form-control" name="startDate">
+                    </div>
+                </div>
+            </fieldset>
+            <div id="secondary_params_div" class="secondary_params">
+                <fieldset id="secondary_param_fieldset" class="form-group border p-3 bg-light">
+                    <legend class="w-auto fs-5 fw-bold text-nowrap text-primary">Дополнительные параметры:</legend>
+                    <div id="secondary_param_set">
+                        <div>
+                            <label for="city_select" class="form-label fw-bold fs-6 text-secondary">Город</label>
+                            <select id="city_select" class="form-select" name="cityId">
+                                <option th:each="city: ${cities}"
+                                        th:id="${'city_select_option__' + city.id}"
+                                        th:value="${city.id}"
+                                        th:text="${city.title}">Город
+                                </option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="date_in_input" class="form-label text-nowrap fw-bold fs-6 text-secondary">Дата
+                                въезда</label>
+                            <input type="date" id="date_in_input" class="form-control">
+                        </div>
+                        <div>
+                            <label for="date_out_input" class="form-label text-nowrap fw-bold fs-6 text-secondary">Дата
+                                выезда</label>
+                            <input type="date" id="date_out_input" class="form-control">
+                        </div>
+                        <div>
+                            <div>
+                                <label for="campaign_guests_input"
+                                       class="form-label text-nowrap fw-bold fs-6 text-secondary">Количество
+                                    гостей</label>
+                                <input id="campaign_guests_input" class="form-control" name="guests"
+                                       value="Количество гостей">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="hotel_type_select" class="form-label text-nowrap fw-bold fs-6 text-secondary">Тип
+                                гостиницы</label>
+                            <select id="hotel_type_select" class="form-select" name="hotelTypeIds" multiple="multiple">
+                                <option th:each="hotelType : ${hotelTypes}"
+                                        th:id="${'hotel_type_select_option__' + hotelType.id}"
+                                        th:value="${hotelType.id}"
+                                        th:text="${hotelType.type}">Тип отеля
+                                </option>
+                            </select>
+                        </div>
+                        <div>
+                            <div class="row ms-2">
+                                <label for="food_type_select"
+                                       class="form-check-label text-nowrap fw-bold fs-6 text-secondary">Тип питания</label>
+                                <input type="checkbox" id="food_type_select" class="form-check-input-sm" name="foodTypeIds"
+                                       multiple="multiple"
+                                       th:each="foodType : ${foodTypes}"
+                                       th:id="${'food_type_select_option__' + foodType.id}"
+                                       th:value="${foodType.id}"
+                                       th:text="${foodType.type}"/>Тип питания
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="buttons">
+                <button type="button" id="save-btn" class="btn btn-primary btn-sm" onclick="saveCampaign()">
+                    Сохранить
+                </button>
+                <button type="button" id="update-btn" class="btn btn-primary btn-sm" onclick="saveCampaign()">
+                    Обновить
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" disabled onclick="addSecondaryParameters()">
+                    Добавить группу
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+</body>
+</html>

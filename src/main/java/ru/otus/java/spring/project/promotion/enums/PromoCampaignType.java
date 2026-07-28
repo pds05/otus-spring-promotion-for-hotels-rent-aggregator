@@ -22,10 +22,10 @@ public enum PromoCampaignType {
         this.telegramMessageTemplate = telegramMessageTemplate;
     }
 
-    public static PromoCampaignType getPromoCampaignType(String description) {
+    public static PromoCampaignType getPromoCampaignType(String name) {
         return Arrays.stream(PromoCampaignType.values())
-                .filter(type -> type.getDescription().equals(description))
+                .filter(type -> type.name().equals(name))
                 .findFirst()
-                .orElseThrow(() -> new ApplicationException("Unknown promo campaign type " + description));
+                .orElseThrow(() -> new ApplicationException("Unknown promo campaign type " + name));
     }
 }

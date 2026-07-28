@@ -6,6 +6,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ru.otus.java.spring.project.promotion.domains.providers.Provider;
 import ru.otus.java.spring.project.promotion.dtos.response.*;
 import ru.otus.java.spring.project.promotion.services.cache.CitiesCache;
 import ru.otus.java.spring.project.promotion.services.cache.FoodTypeCache;
@@ -54,13 +55,14 @@ public class ModelMapperConfig {
         mappingCampaignHotelParameterToDto(mapper);
         mappingCampaignHotelParameterDtoToDomain(mapper);
         mappingProviderHotelDataToDto(mapper);
+        mappingProviderDomainToDto(mapper);
 
         return mapper;
     }
 
     private void mappingCtHotelTypeToDto(ModelMapper mapper) {
         mapper.createTypeMap(CtHotelType.class, HotelTypeDto.class)
-                .addMapping(CtHotelType::getName, HotelTypeDto::setType);
+                .addMapping(CtHotelType::getDescription, HotelTypeDto::setType);
     }
 
     private void mappingCtFoodTypeToDto(ModelMapper mapper) {
@@ -110,8 +112,14 @@ public class ModelMapperConfig {
                         .map(PromoCampaign::getHotelParameters, PromoCampaignDto::setHotelParameters));
     }
 
+    private void mappingProviderDomainToDto(ModelMapper mapper) {
+        mapper.createTypeMap(Provider.class, PromoCampaignDto.ProviderDto.class)
+                .addMapping(Provider::getId, PromoCampaignDto.ProviderDto::setId)
+                .addMapping(Provider::getDescription,PromoCampaignDto.ProviderDto::setName);
+    }
+
     private void mappingCampaignRqDtoToDomain(ModelMapper mapper) {
-        Converter<String, PromoCampaignType> stringPromoCampaignTypeConverter = mc -> PromoCampaignType.getPromoCampaignType(mc.getSource());
+        Converter<String, PromoCampaignType> stringPromoCampaignTypeConverter = mc -> PromoCampaignType.valueOf(mc.getSource());
 
         Converter<List<CampaignHotelParameterRqDto>, Set<CampaignHotelParameter>> hotelParametersDtoToDomainConverter = m -> m.getSource().stream()
                 .map(req -> {

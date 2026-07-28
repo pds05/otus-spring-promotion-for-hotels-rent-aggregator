@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:td="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Promotion Hotel Aggregator</title>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+
+    <style>
+        body {
+            padding: 50px;
+        }
+        hr {
+            height: 2px;
+            background-color: #B3BDBB;
+            border: none;
+        }
+
+        h3 {
+            padding-top: 10px;
+            margin-top: 20px;
+            font-size: 25px;
+        }
+        .logo-div {
+            width: 100vw;
+            top: 10px;
+            left: 35px;
+        }
+    </style>
+
+    <script>
+        function startCampaign(id) {
+            fetch("/ha_promotion/api/v1/promo_campaign/start/" + id,
+                {method: 'PUT'})
+                .then(resp => resp.json())
+                .then(json => {
+                    let status = json.status
+                    if (status === "Запущена") {
+                        getFetchData(json.id)
+                        document.getElementById("start_button").hidden = true
+                    }
+                })
+        }
+    </script>
+
+    <script>
+        function stopCampaign(id) {
+            fetch("/ha_promotion/api/v1/promo_campaign/stop/" + id,
+                {method: 'PUT'})
+            getFetchData(id)
+        }
+    </script>
+
+    <script>
+        function deleteCampaign(id) {
+            fetch("/ha_promotion/api/v1/promo_campaign/" + id,
+                {method: 'DELETE'})
+            window.location.href='/ha_promotion/promo_campaign'
+        }
+    </script>
+
+    <script>
+        function getFetchData(id) {
+            if ($.fn.DataTable.isDataTable("#main_campaign_table")) {
+                $('#campaign_parameters_table').DataTable().clear().destroy();
+                $('#main_campaign_table').DataTable().clear().destroy();
+            }
+            fetch('/ha_promotion/api/v1/promo_campaign/' + id)
+                .then(resp => resp.json())
+                .then(json => {
+                    $('#main_campaign_table').DataTable({
+                        responsive: true,
+                        searching: false,
+                        paging: false,
+                        info: false,
+                        dom: 'Bfrtip',
+                        layout: {
+                            topStart: 'buttons',
+                        },
+                        data: [json],
+                        columns: [
+                            {
+                                data: 'id',
+                                width: '5%',
+                            },
+                            {data: 'title'},
+                            {data: 'campaignType'},
+                            {
+                                data: 'providers',
+                                render: function (data, type, row) {
+                                    let list = '<ul>';
+                                    data.forEach(item => list += '<li>' + item.name + '</li>')
+                                    return list.concat('</ul>')
+                                },
+                                defaultContent: ''
+                            },
+                            {data: 'startDate', defaultContent: ''},
+                            {data: 'status', defaultContent: ''},
+                            {data: 'result', defaultContent: ''},
+                            {data: 'details', defaultContent: ''},
+                            {
+                                data: null,
+                                defaultContent: '',
+                                render: function (data, type, row) {
+                                    if (row.status === 'Создана' || row.status === 'Остановлена') {
+                                        return '<button id="start_btn" onclick="startCampaign(' + row.id + ')">Запустить</button>'
+                                    } else if (row.status === 'Запущена') {
+                                        return '<button id="stop_btn" onclick="stopCampaign(' + row.id + ')">Остановить</button>'
+                                    } else {
+                                        return '<button id="delete_btn" onclick="deleteCampaign(' + row.id + ')">Удалить</button>'
+                                    }
+                                }
+                            }
+                        ],
+                        buttons: [
+                            {
+                                text: 'Назад',
+                                action: function () {
+                                    window.location.href = '/ha_promotion/promo_campaign'
+                                }
+                            },
+                            {
+                                text: 'Обновить',
+                                action: function (){
+                                    let id = new URLSearchParams(document.location.search).get('id');
+                                    window.location.href = '/ha_promotion/promo_campaign/info?id=' + id
+                                }
+                            },
+                        ]
+                    });
+
+                    $('#campaign_parameters_table').DataTable({
+                        ajax: '/ha_promotion/api/v1/promo_campaign/' + id,
+                        responsive: true,
+                        searching: false,
+                        paging: false,
+                        info: false,
+                        data: json.hotelParameters,
+                        columns: [
+                            {data: 'cityName'},
+                            {
+                                data: 'hotelTypes',
+                                render: function (data, type, row) {
+                                    let list = '<ul>';
+                                    data.forEach(item => list += '<li>' + item.type + '</li>')
+                                    return list.concat('</ul>')
+                                },
+                                defaultContent: ''
+                            },
+                            {
+                                data: 'foodTypes',
+                                render: function (data, type, row) {
+                                    let list = '<ul>';
+                                    data.forEach(item => list += '<li>' + item.type + '</li>')
+                                    return list.concat('</ul>')
+                                },
+                                defaultContent: ''
+                            },
+                            {data: 'dateIn'},
+                            {data: 'dateOut'},
+                            {data: 'guests'}
+                        ]
+                    })
+                })
+        }
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            const params = new URLSearchParams(document.location.search)
+            const campaignId = params.get("id")
+
+            getFetchData(campaignId)
+        })
+
+    </script>
+
+</head>
+<body>
+<div class="logo-div">
+    <a th:href="@{/}"><img src="../logo.png" alt="Логотип сервиса"></a>
+</div>
+<h3>Основные параметры кампании</h3>
+<div id="main_campaign_properties">
+    <table id="main_campaign_table" class="display">
+        <thead>
+        <tr>
+            <th>Номер</th>
+            <th>Название</th>
+            <th>Тип кампании</th>
+            <th>Сервисы</th>
+            <th>Время запуска</th>
+            <th>Состояние</th>
+            <th>Результат</th>
+            <th>Подробности</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<h3 data-th-marginheight="50px">Дополнительные параметры кампании</h3>
+
+<div>
+    <table id="campaign_parameters_table" class="display">
+        <thead>
+        <tr>
+            <th>Город</th>
+            <th>Тип отеля</th>
+            <th>Тип питания</th>
+            <th>Дата заселения</th>
+            <th>Дата выезда</th>
+            <th>Количество гостей</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+</body>
+</html>
