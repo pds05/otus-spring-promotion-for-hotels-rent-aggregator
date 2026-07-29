@@ -3,7 +3,6 @@ package ru.otus.java.spring.project.promotion.services.cache;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import ru.otus.java.spring.project.promotion.configs.IntegrationPropertyFileConfig;
 import ru.otus.java.spring.project.promotion.domains.providers.Provider;
@@ -19,7 +18,6 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
-@Component
 @Service("activeProviderCache")
 public class ActiveProviderCache implements ModelCache<Provider> {
 

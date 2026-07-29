@@ -4,7 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import ru.otus.java.spring.project.promotion.domains.providers.Provider;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 
 @DisplayName("Сервис для работы с топ-предложениями")
 @SpringBootTest
-@EnableAutoConfiguration(exclude = WebMvcAutoConfiguration.class)
+@EnableAutoConfiguration(exclude = {SecurityAutoConfiguration.class})
 public class ProviderHotelDataServiceImplTest {
 
     public static final long PROMO_CAMPAIGN_LOW_COST = 101L;
