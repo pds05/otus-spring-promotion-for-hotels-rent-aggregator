@@ -164,7 +164,7 @@ public class PromoCampaignRestControllerTest {
         PromoCampaignRqDto request = new PromoCampaignRqDto();
         request.setTitle("С питанием");
         request.setStartDate(LocalDateTime.of(2027, 1, 1, 0, 0));
-        request.setCampaignType(PromoCampaignType.LOW_COST.getDescription());
+        request.setCampaignType(PromoCampaignType.LOW_COST.name());
         request.setProviderIds(Collections.singletonList(1L));
         request.setHotelParameters(Collections.singletonList(
                 new CampaignHotelParameterRqDto(null, null, 1L,

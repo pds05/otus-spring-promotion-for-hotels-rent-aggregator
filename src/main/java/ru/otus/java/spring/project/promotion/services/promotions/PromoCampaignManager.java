@@ -2,19 +2,26 @@ package ru.otus.java.spring.project.promotion.services.promotions;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.java.spring.project.promotion.domains.promotions.*;
+import ru.otus.java.spring.project.promotion.domains.providers.Provider;
 import ru.otus.java.spring.project.promotion.dtos.request.PromoCampaignRqDto;
 import ru.otus.java.spring.project.promotion.dtos.response.PromoCampaignDto;
 import ru.otus.java.spring.project.promotion.enums.PromoCampaignResult;
 import ru.otus.java.spring.project.promotion.enums.PromoCampaignStatus;
+import ru.otus.java.spring.project.promotion.enums.PromoCampaignType;
 import ru.otus.java.spring.project.promotion.exceptions.ApplicationException;
 import ru.otus.java.spring.project.promotion.exceptions.BusinessLogicException;
 import ru.otus.java.spring.project.promotion.exceptions.ResourceNotFoundException;
 import ru.otus.java.spring.project.promotion.repositories.promotions.PromoCampaignRepository;
+import ru.otus.java.spring.project.promotion.services.providers.ProviderService;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service("promoCampaignService")
@@ -23,6 +30,8 @@ public class PromoCampaignManager implements PromoCampaignService {
     private final ModelMapper modelMapper;
 
     private final PromoCampaignRepository promoCampaignRepository;
+
+    private final ProviderService providerService;
 
     @Transactional(readOnly = true)
     @Override
@@ -60,8 +69,19 @@ public class PromoCampaignManager implements PromoCampaignService {
             promoCampaign = new PromoCampaign();
             promoCampaign.setStatus(PromoCampaignStatus.CREATED);
         }
+        promoCampaign.setTitle(request.getTitle());
+        promoCampaign.setStartDate(request.getStartDate());
+        promoCampaign.setCampaignType(PromoCampaignType.valueOf(request.getCampaignType()));
 
-        modelMapper.map(request, promoCampaign);
+        Set<CampaignHotelParameter> paramsForUpdate = modelMapper.map(request.getHotelParameters(),
+                new TypeToken<Set<CampaignHotelParameter>>() {}.getType());
+        promoCampaign.replaceHotelParameters(paramsForUpdate);
+
+        Set<Provider> providersForUpdate = new HashSet<>(providerService.getByIds(request.getProviderIds()));
+        Set<CampaignProvider> campaignProvidersForUpdate = providersForUpdate.stream().map(provider ->
+                new CampaignProvider(null, provider.getId())).collect(Collectors.toSet());
+
+        promoCampaign.replaceCampaignProviders(campaignProvidersForUpdate);
 
         PromoCampaign saved = promoCampaignRepository.save(promoCampaign);
         return modelMapper.map(saved, PromoCampaignDto.class);

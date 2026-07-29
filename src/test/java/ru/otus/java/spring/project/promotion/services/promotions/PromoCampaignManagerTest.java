@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguratio
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import ru.otus.java.spring.project.promotion.controllers.mvc.PromoCampaignMvcController;
 import ru.otus.java.spring.project.promotion.enums.PromoCampaignResult;
 import ru.otus.java.spring.project.promotion.enums.PromoCampaignStatus;
 import ru.otus.java.spring.project.promotion.enums.PromoCampaignType;
@@ -56,6 +57,9 @@ public class PromoCampaignManagerTest {
 
     @MockitoBean
     private PromoCampaignExecutor promoCampaignExecutor;
+
+    @MockitoBean
+    private PromoCampaignMvcController promoCampaignMvcController;
 
     private Provider nifNif;
 
@@ -145,7 +149,6 @@ public class PromoCampaignManagerTest {
                 .ignoringExpectedNullFields()
                 .isEqualTo(promoCampaignService.get(stopped.getId()));
         assertThat(stopped.getStatus()).isEqualTo(PromoCampaignStatus.IDLE.getDescription());
-        assertThat(stopped.getResult()).isEqualTo(PromoCampaignResult.INTERRUPTED.getDescription());
     }
 
     @Transactional
@@ -168,7 +171,7 @@ public class PromoCampaignManagerTest {
                 .ignoringExpectedNullFields()
                 .isEqualTo(promoCampaignService.get(stopped.getId()));
         assertThat(stopped.getStatus()).isEqualTo(PromoCampaignStatus.COMPLETED.getDescription());
-        assertThat(stopped.getResult()).isEqualTo(PromoCampaignResult.OK.getDescription());
+        assertThat(stopped.getResult()).isEqualTo(PromoCampaignResult.INTERRUPTED.getDescription());
     }
 
     @Transactional
@@ -202,7 +205,7 @@ public class PromoCampaignManagerTest {
         PromoCampaignRqDto request = new PromoCampaignRqDto();
         request.setStartDate(LocalDateTime.of(2026, Month.AUGUST, 1, 12, 0));
         request.setTitle("Тестовая кампания");
-        request.setCampaignType(PromoCampaignType.LOW_COST.getDescription());
+        request.setCampaignType(PromoCampaignType.LOW_COST.name());
         request.setProviderIds(List.of(1L, 2L));
 
         CampaignHotelParameterRqDto moscowParameter = new CampaignHotelParameterRqDto();

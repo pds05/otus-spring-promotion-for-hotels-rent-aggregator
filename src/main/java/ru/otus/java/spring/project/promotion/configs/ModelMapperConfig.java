@@ -1,6 +1,6 @@
 package ru.otus.java.spring.project.promotion.configs;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -26,17 +26,17 @@ import java.util.stream.Collectors;
 
 import static org.modelmapper.config.Configuration.AccessLevel.PRIVATE;
 
-@RequiredArgsConstructor
+@AllArgsConstructor
 @Configuration
 public class ModelMapperConfig {
 
-    private final ProviderService providerService;
+    private ProviderService providerService;
 
-    private final HotelTypeCache hotelTypeCache;
+    private HotelTypeCache hotelTypeCache;
 
-    private final FoodTypeCache foodTypeCache;
+    private FoodTypeCache foodTypeCache;
 
-    private final CitiesCache citiesCache;
+    private CitiesCache citiesCache;
 
     @Bean
     public ModelMapper modelMapper() {
@@ -62,12 +62,14 @@ public class ModelMapperConfig {
 
     private void mappingCtHotelTypeToDto(ModelMapper mapper) {
         mapper.createTypeMap(CtHotelType.class, HotelTypeDto.class)
-                .addMapping(CtHotelType::getDescription, HotelTypeDto::setType);
+                .addMapping(CtHotelType::getDescription, HotelTypeDto::setType)
+                .addMapping(CtHotelType::getId, HotelTypeDto::setId);
     }
 
     private void mappingCtFoodTypeToDto(ModelMapper mapper) {
         mapper.createTypeMap(CtFoodType.class, FoodTypeDto.class)
-                .addMapping(CtFoodType::getDescription, FoodTypeDto::setType);
+                .addMapping(CtFoodType::getDescription, FoodTypeDto::setType)
+                .addMapping(CtFoodType::getId, FoodTypeDto::setId);
     }
 
     private void mappingPromoCampaignToDto(ModelMapper mapper) {
@@ -132,19 +134,21 @@ public class ModelMapperConfig {
                         foodTypes = new HashSet<>(foodTypeCache.getByIds(req.getFoodTypeIds()));
                     }
                     CtCity city = citiesCache.get(req.getCityId());
-                    return new CampaignHotelParameter(req.getId(), city, req.getCampaignId(), req.getDateIn(), req.getDateOut(), req.getGuests(), hotelTypes, foodTypes);
+                    return new CampaignHotelParameter(req.getId(), city,req.getCampaignId(), req.getDateIn(), req.getDateOut(), req.getGuests(), hotelTypes, foodTypes);
                 }).collect(Collectors.toSet());
 
         Converter<List<Long>, Set<CampaignProvider>> campaignProviderIdToModelListConverter = m ->
                 m.getSource().stream().map(id -> new CampaignProvider(null, id)).collect(Collectors.toSet());
 
         mapper.createTypeMap(PromoCampaignRqDto.class, PromoCampaign.class)
+                .addMapping(PromoCampaignRqDto::getId, PromoCampaign::setId)
                 .addMappings(m -> m.using(stringPromoCampaignTypeConverter)
                         .map(PromoCampaignRqDto::getCampaignType, PromoCampaign::setCampaignType))
                 .addMappings(mc -> mc.using(hotelParametersDtoToDomainConverter)
                         .map(PromoCampaignRqDto::getHotelParameters, PromoCampaign::setHotelParameters))
                 .addMappings(mc -> mc.using(campaignProviderIdToModelListConverter)
-                        .map(PromoCampaignRqDto::getProviderIds, PromoCampaign::setCampaignProviders));
+                        .map(PromoCampaignRqDto::getProviderIds, PromoCampaign::setCampaignProviders))
+        ;
     }
 
     private void mappingCampaignHotelParameterToDto(ModelMapper mapper) {

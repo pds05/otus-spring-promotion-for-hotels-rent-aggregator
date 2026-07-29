@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.UpdateTimestamp;
+import ru.otus.java.spring.project.promotion.dtos.request.PromoCampaignRqDto;
 import ru.otus.java.spring.project.promotion.enums.PromoCampaignResult;
 import ru.otus.java.spring.project.promotion.enums.PromoCampaignStatus;
 import ru.otus.java.spring.project.promotion.enums.PromoCampaignType;
@@ -72,6 +73,19 @@ public class PromoCampaign {
         }
     }
 
+    public void replaceHotelParameters(Set<CampaignHotelParameter> newHotelParameters) {
+        if (hotelParameters == null) {
+            hotelParameters = new HashSet<>();
+            hotelParameters.addAll(newHotelParameters);
+        } else {
+            hotelParameters.forEach(hotelParameter -> {
+                hotelParameter.setCampaignId(null);
+            });
+            hotelParameters.clear();
+            hotelParameters.addAll(newHotelParameters);
+        }
+    }
+
     public void removeHotelParameter(CampaignHotelParameter hotelParameter) {
         if (hotelParameters != null) {
             hotelParameters.remove(hotelParameter);
@@ -89,6 +103,19 @@ public class PromoCampaign {
             campaignProviders.add(campaignProvider);
         } else {
             campaignProviders.add(campaignProvider);
+        }
+    }
+
+    public void replaceCampaignProviders(Set<CampaignProvider> newCampaignProviders) {
+        if (campaignProviders == null) {
+            campaignProviders = new HashSet<>();
+            campaignProviders.addAll(newCampaignProviders);
+        } else {
+            campaignProviders.forEach(provider -> {
+                provider.setProviderId(null);
+            });
+            campaignProviders.clear();
+            campaignProviders.addAll(newCampaignProviders);
         }
     }
 
@@ -123,5 +150,4 @@ public class PromoCampaign {
             return Collections.emptyList();
         }
     }
-
 }
