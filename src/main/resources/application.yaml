@@ -70,11 +70,10 @@ integration:
       enable: false
 executor:
   delay: 5000
-
 logging:
   level:
-    org.hibernate.SQL: DEBUG
+    org.hibernate.SQL: INFO
 #    org.hibernate.orm.jdbc.bind: TRACE
 #    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 #    org.zalando.logbook.Logbook: TRACE
-    ru.otus: DEBUG
+    ru.otus: INFO

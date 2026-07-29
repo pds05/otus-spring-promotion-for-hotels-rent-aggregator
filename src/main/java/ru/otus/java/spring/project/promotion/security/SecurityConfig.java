@@ -38,8 +38,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/promo_campaign/**").hasRole("MANAGER")
                         .requestMatchers(HttpMethod.DELETE, "/promo_campaign/**").hasRole("MANAGER")
 
-                        .requestMatchers("/api/v1/campaign_hotel_parameter").hasRole("MANAGER")
-                        .requestMatchers("/api/v1/top_data").hasRole("MANAGER")
+                        .requestMatchers("/api/v1/campaign_hotel_parameter**").hasRole("MANAGER")
+                        .requestMatchers("/api/v1/top_data**").hasRole("MANAGER")
 
                         .anyRequest().authenticated()
                 )

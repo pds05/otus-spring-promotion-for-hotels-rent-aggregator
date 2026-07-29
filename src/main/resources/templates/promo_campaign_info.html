@@ -41,7 +41,7 @@
                 .then(json => {
                     let status = json.status
                     if (status === "Запущена") {
-                        getFetchData(json.id)
+                        getCampaignData(json.id)
                         document.getElementById("start_button").hidden = true
                     }
                 })
@@ -53,7 +53,7 @@
             fetch("/ha_promotion/api/v1/promo_campaign/stop/" + id,
                 {method: 'PUT'})
                 .then(resp => resp.json()
-                    .then(json => {getFetchData(id)
+                    .then(json => {getCampaignData(id)
                         document.getElementById("start_button").hidden = false
                     }))
         }
@@ -74,123 +74,129 @@
     </script>
 
     <script>
-        function getFetchData(id) {
+        async function getCampaignData(id) {
             if ($.fn.DataTable.isDataTable("#main_campaign_table")) {
                 $('#campaign_parameters_table').DataTable().clear().destroy();
                 $('#main_campaign_table').DataTable().clear().destroy();
             }
-            fetch('/ha_promotion/api/v1/promo_campaign/' + id)
-                .then(resp => resp.json())
-                .then(json => {
-                    $('#main_campaign_table').DataTable({
-                        responsive: true,
-                        searching: false,
-                        paging: false,
-                        info: false,
-                        hideEmptyCols: true,
-                        dom: 'Bfrtip',
-                        layout: {
-                            topStart: 'buttons',
-                        },
-                        data: [json],
-                        columns: [
-                            {
-                                data: 'id',
-                                width: '5%',
-                            },
-                            {data: 'title'},
-                            {data: 'campaignType'},
-                            {
-                                data: 'providers',
-                                render: function (data, type, row) {
-                                    let list = '<ul>';
-                                    data.forEach(item => list += '<li>' + item.name + '</li>')
-                                    return list.concat('</ul>')
-                                },
-                                defaultContent: ''
-                            },
-                            {data: 'startDate', defaultContent: ''},
-                            {data: 'status', defaultContent: ''},
-                            {data: 'result', defaultContent: ''},
-                            {data: 'details', defaultContent: ''},
-                            {
-                                data: null,
-                                defaultContent: '',
-                                render: function (data, type, row) {
-                                    if (row.status === 'Создана' || row.status === 'Остановлена') {
-                                        return '<button id="start_btn" onclick="startCampaign(' + row.id + ')">Запустить</button>'
-                                    } else if (row.status === 'Запущена') {
-                                        return '<button id="stop_btn" onclick="stopCampaign(' + row.id + ')">Остановить</button>'
-                                    } else return ''
-                                }
-                            },
-                            {
-                                data: null,
-                                defaultContent: '',
-                                render: function (data, type, row) {
-                                    if (row.status === 'Создана' || row.status === 'Остановлена') {
-                                        return '<button id="update_btn" onclick="updateCampaign(' + row.id + ')">Изменить</button>'
-                                    } else return null
-                                }
-                            },
-                            {
-                                data: null,
-                                defaultContent: '',
-                                render: function (data, type, row) {
-                                    return '<button id="delete_btn" onclick="deleteCampaign(' + row.id + ')">Удалить</button>'
-                                }
-                            }
-                        ],
-                        buttons: [
-                            {
-                                text: 'Назад',
-                                action: function () {
-                                    window.location.href = '/ha_promotion/promo_campaign'
-                                }
-                            },
-                            {
-                                text: 'Обновить',
-                                action: function (){
-                                    let id = new URLSearchParams(document.location.search).get('id');
-                                    window.location.href = '/ha_promotion/promo_campaign/info?id=' + id
-                                }
-                            },
-                        ]
-                    });
+            let response = await fetch('/ha_promotion/api/v1/promo_campaign/' + id)
+            if (response.ok) {
+                let jsonData = await response.json()
 
-                    $('#campaign_parameters_table').DataTable({
-                        ajax: '/ha_promotion/api/v1/promo_campaign/' + id,
-                        responsive: true,
-                        searching: false,
-                        paging: false,
-                        info: false,
-                        data: json.hotelParameters,
-                        columns: [
-                            {data: 'cityName'},
-                            {
-                                data: 'hotelTypes',
-                                render: function (data, type, row) {
-                                    let list = '<ul>';
-                                    data.forEach(item => list += '<li>' + item.type + '</li>')
-                                    return list.concat('</ul>')
-                                },
-                                defaultContent: ''
+                $('#main_campaign_table').DataTable({
+                    responsive: true,
+                    searching: false,
+                    paging: false,
+                    info: false,
+                    hideEmptyCols: true,
+                    dom: 'Bfrtip',
+                    layout: {
+                        topStart: 'buttons',
+                    },
+                    data: [jsonData],
+                    columns: [
+                        {
+                            data: 'id',
+                            width: '5%',
+                        },
+                        {data: 'title'},
+                        {data: 'campaignType'},
+                        {
+                            data: 'providers',
+                            render: function (data, type, row) {
+                                let list = '<ul>';
+                                data.forEach(item => list += '<li>' + item.name + '</li>')
+                                return list.concat('</ul>')
                             },
-                            {
-                                data: 'foodTypes',
-                                render: function (data, type, row) {
-                                    let list = '<ul>';
-                                    data.forEach(item => list += '<li>' + item.type + '</li>')
-                                    return list.concat('</ul>')
-                                },
-                                defaultContent: ''
+                            defaultContent: ''
+                        },
+                        {data: 'startDate', defaultContent: ''},
+                        {data: 'status', defaultContent: ''},
+                        {data: 'result', defaultContent: ''},
+                        {data: 'details', defaultContent: ''},
+                        {
+                            data: null,
+                            defaultContent: '',
+                            render: function (data, type, row) {
+                                if (row.status === 'Создана' || row.status === 'Остановлена') {
+                                    return '<button id="start_btn" onclick="startCampaign(' + row.id + ')">Запустить</button>'
+                                } else if (row.status === 'Запущена') {
+                                    return '<button id="stop_btn" onclick="stopCampaign(' + row.id + ')">Остановить</button>'
+                                } else return ''
+                            }
+                        },
+                        {
+                            data: null,
+                            defaultContent: '',
+                            render: function (data, type, row) {
+                                if (row.status === 'Создана' || row.status === 'Остановлена') {
+                                    return '<button id="update_btn" onclick="updateCampaign(' + row.id + ')">Изменить</button>'
+                                } else return null
+                            }
+                        },
+                        {
+                            data: null,
+                            defaultContent: '',
+                            render: function (data, type, row) {
+                                return '<button id="delete_btn" onclick="deleteCampaign(' + row.id + ')">Удалить</button>'
+                            }
+                        }
+                    ],
+                    buttons: [
+                        {
+                            text: 'Назад',
+                            action: function () {
+                                window.location.href = '/ha_promotion/promo_campaign'
+                            }
+                        },
+                        {
+                            text: 'Обновить',
+                            action: function (){
+                                let id = new URLSearchParams(document.location.search).get('id');
+                                window.location.href = '/ha_promotion/promo_campaign/info?id=' + id
+                            }
+                        },
+                    ]
+                });
+
+                $('#campaign_parameters_table').DataTable({
+                    ajax: '/ha_promotion/api/v1/promo_campaign/' + id,
+                    responsive: true,
+                    searching: false,
+                    paging: false,
+                    info: false,
+                    data: jsonData.hotelParameters,
+                    columns: [
+                        {data: 'cityName'},
+                        {
+                            data: 'hotelTypes',
+                            render: function (data, type, row) {
+                                let list = '<ul>';
+                                data.forEach(item => list += '<li>' + item.type + '</li>')
+                                return list.concat('</ul>')
                             },
-                            {data: 'dateIn'},
-                            {data: 'dateOut'},
-                            {data: 'guests'}
-                        ]
-                    })
+                            defaultContent: ''
+                        },
+                        {
+                            data: 'foodTypes',
+                            render: function (data, type, row) {
+                                let list = '<ul>';
+                                data.forEach(item => list += '<li>' + item.type + '</li>')
+                                return list.concat('</ul>')
+                            },
+                            defaultContent: ''
+                        },
+                        {data: 'dateIn'},
+                        {data: 'dateOut'},
+                        {data: 'guests'}
+                    ]
                 })
+                if (jsonData.status === 'Завершена') {
+                    drawProviderDataTable(jsonData.id)
+                }
+            } else {
+                alert("Упс! Что-то пошло не так:( Не могу получить данные от сервера")
+            }
         }
     </script>
 
@@ -199,9 +205,43 @@
             const params = new URLSearchParams(document.location.search)
             const campaignId = params.get("id")
 
-            getFetchData(campaignId)
+            getCampaignData(campaignId)
         })
+    </script>
 
+    <script>
+        async function drawProviderDataTable(campaignId){
+            let response = await fetch('/ha_promotion/api/v1/top_data?campaignId=' + campaignId)
+            if(response.ok) {
+                let jsonData = await response.json()
+
+                document.getElementById("provider_data_div").hidden=false
+
+                $('#provider_data_table').DataTable({
+                    responsive: true,
+                    searching: false,
+                    paging: false,
+                    info: false,
+                    data: jsonData,
+                    columns: [
+                        {data: 'actualDate'},
+                        {data: 'provider'},
+                        {data: 'city'},
+                        {data: 'hotel'},
+                        {data: 'room'},
+                        {data: 'rate'},
+                        {data: 'price'},
+                        {data: 'maxGuests'},
+                        {data: 'food'},
+                        {data: 'dateIn'},
+                        {data: 'dateOut'}
+                    ],
+                    order:[
+                        [0, 'asc']
+                    ]
+                })
+            }
+        }
     </script>
 
 </head>
@@ -247,6 +287,30 @@
         </thead>
         <tbody></tbody>
     </table>
+</div>
+
+<div id="provider_data_div" hidden>
+    <h3 data-th-marginheight="50px">Топ предложений от сервисов</h3>
+    <div>
+        <table id="provider_data_table" class="display">
+            <thead>
+            <tr>
+                <th>Дата предложения</th>
+                <th>Сервис</th>
+                <th>Город</th>
+                <th>Отель</th>
+                <th>Номер</th>
+                <th>Тариф</th>
+                <th>Стоимость</th>
+                <th>Количество гостей</th>
+                <th>Тип питания</th>
+                <th>Дата заселения</th>
+                <th>Дата выезда</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 </div>
 
 </body>
