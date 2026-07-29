@@ -104,7 +104,7 @@ public class ActiveProviderCache implements ModelCache<Provider> {
                 .filter(provider -> provider.getIsActive().equals(true))
                 .collect(Collectors.toMap(Provider::getId, k -> k));
         if (providerMap.isEmpty()) {
-            throw new ApplicationException("No enables providers in configuration");
+            log.error("No active providers in configuration property or database");
         }
         return providerMap;
     }

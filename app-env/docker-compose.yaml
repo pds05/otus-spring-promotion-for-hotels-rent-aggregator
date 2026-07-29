@@ -1,0 +1,31 @@
+services:
+  promo-postgres:
+    image: postgres:17
+    container_name: promo-postgres
+    ports:
+      - "5450:5432"
+    networks:
+      - default
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-U", "postgres" ]
+      interval: 5s
+      timeout: 1s
+      retries: 3
+    volumes:
+      - ./postgres/:/docker-entrypoint-initdb.d
+
+  ha-promotion:
+    environment:
+      - "SPRING_PROFILES_ACTIVE=docker"
+    image: ha-promotion-app:latest
+    container_name: ha-promotion
+    depends_on:
+      - promo-postgres
+
+
+
+
+

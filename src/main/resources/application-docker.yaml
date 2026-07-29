@@ -1,0 +1,79 @@
+server:
+  port: 8088
+  servlet:
+    context-path: /ha_promotion
+spring:
+  application:
+    name: promotion-service
+  datasource:
+    providers:
+      driver-class-name: org.postgresql.Driver
+      url: jdbc:postgresql://localhost:5432/hotels_aggregator_db
+      username: ha_admin
+      password: ha_admin_pass
+      jpa:
+        show-sql: true
+        open-in-view: false
+      properties:
+        hibernate:
+          format_sql: true
+    promotions:
+      driver-class-name: org.postgresql.Driver
+      url: jdbc:postgresql://localhost:5432/promotion_db
+      username: promo_admin
+      password: promo_pass
+      jpa:
+        show-sql: true
+        open-in-view: false
+      properties:
+        hibernate:
+          format_sql: true
+  flyway:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/promotion_db
+    user: promo_admin
+    password: promo_pass
+    locations: db/migration
+    clean-disabled: false
+    enabled: true
+    baseline-on-migrate: true
+integration:
+  telegram:
+    url: https://api.telegram.org
+    chat-id: -1003974066883
+    bot-uri-prefix: bot
+    bot-api-send-message: sendMessage
+    message-delay: 3000
+  base:
+    url: http://localhost:8080
+    read-timeout: 15s
+    connect-timeout: 2s
+    topic-prefix: baseProvider
+  providers:
+    nifNif:
+      url: http://localhost:8090/api/v1
+      read-timeout: 20s
+      connect-timeout: 5s
+      topic-prefix: nifNif
+      enable: true
+    nafNaf:
+      url: http://localhost:8091/api/v1
+      read-timeout: 20s
+      connect-timeout: 5s
+      topic-prefix: nafNaf
+      enable: true
+    nufNuf:
+      url: http://localhost:8092/api/v1
+      read-timeout: 20s
+      connect-timeout: 5s
+      topic-prefix: nufNuf
+      enable: false
+executor:
+  delay: 5000
+logging:
+  level:
+    org.hibernate.SQL: INFO
+#    org.hibernate.orm.jdbc.bind: TRACE
+#    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+#    org.zalando.logbook.Logbook: TRACE
+    ru.otus: INFO

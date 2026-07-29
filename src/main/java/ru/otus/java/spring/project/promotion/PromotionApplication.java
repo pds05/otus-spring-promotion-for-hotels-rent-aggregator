@@ -15,6 +15,6 @@ public class PromotionApplication  {
         System.out.println("Для работы Telegram бота нужно запустить приложение с аргументом '--botToken={TOKEN}'");
 
         System.out.println("Для входа в систему использую учетную запись user/password или manager/password");
-    }
 
+    }
 }
